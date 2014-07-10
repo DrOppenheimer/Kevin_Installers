@@ -15,12 +15,14 @@
 ####################################################################################
 ### Create envrionment variables for key options
 ####################################################################################
+sudo bash
 echo "Creating environment variables"
 cat >>/home/ubuntu/.bashrc<<EOF
 AWE_SERVER="http://140.221.84.145:8000"
 AWE_CLIENT_GROUP="am_compute"
 EOF
 source /home/ubuntu/.bashrc
+exit
 echo "DONE"
 ####################################################################################
 
