@@ -2,6 +2,8 @@
 ####################################################################################
 ### INSTALL UPDATED R ONLY - this version for 14.04 (trusty)
 ####################################################################################
+### Install Curl
+sudo apt-get install libcurl4-openssl-dev
 ### add cran public key # this makes it possible to install most current R below
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 ### for qiime install later, uncomment the universe and multiverse repositories from /etc/apt/sources.list
