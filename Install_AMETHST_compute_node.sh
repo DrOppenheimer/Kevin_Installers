@@ -15,7 +15,7 @@
 ####################################################################################
 ### Create envrionment variables for key options
 ####################################################################################
-echo "Creating envrionment variables"
+echo "Creating environment variables"
 cat >>/home/ubuntu/.bashrc<<EOF
 AWE_SERVER="http://140.221.84.145:8000"
 AWE_CLIENT_GROUP="am_compute"
@@ -140,7 +140,7 @@ echo "DONE"
 ####################################################################################
 #### install perl packages
 ####################################################################################
-echo "Installing perl pacakges"
+echo "Installing perl packages"
 sudo bash 
 #curl -L http://cpanmin.us | perl - --sudo App::cpanminus
 curl -L http://cpanmin.us | perl - --sudo Statistics::Descriptive
