@@ -20,3 +20,12 @@ source_https("https://raw.githubusercontent.com/DrOppenheimer/matR-apps/master/n
 
 # stats
 source_https("https://raw.githubusercontent.com/DrOppenheimer/matR-apps/master/stats_fun.2-27-14/matR_stats_from_files.r")
+
+
+
+### USFULL NOTES
+## apt-get update
+## apt-get upgrade
+## apt-get -y purge r-base
+## apt-get -y build-dep r-base
+## apt-get -y install r-base
