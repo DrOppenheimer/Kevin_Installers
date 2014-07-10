@@ -9,20 +9,20 @@
 #sudo bash
 #chmod u=+x Install_AMETHST_compute_node.sh
 #/home/ubuntu/Install_AMETHST_compute_node.sh
-#exit
+### Stay in the super user bash
 ####################################################################################
 
 ####################################################################################
 ### Create envrionment variables for key options
 ####################################################################################
-sudo bash
+#sudo bash
 echo "Creating environment variables"
 cat >>/home/ubuntu/.bashrc<<EOF
 AWE_SERVER="http://140.221.84.145:8000"
 AWE_CLIENT_GROUP="am_compute"
 EOF
 source /home/ubuntu/.bashrc
-exit
+#exit
 echo "DONE"
 ####################################################################################
 
@@ -30,9 +30,9 @@ echo "DONE"
 ### move /tmp to /mnt/tmp (compute frequntly needs the space, exact amount depends on data)
 ####################################################################################
 echo "moving /tmp"
-sudo bash
+#sudo bash
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
-exit
+#exit
 echo "DONE"
 ####################################################################################
 
@@ -41,7 +41,7 @@ echo "DONE"
 ####################################################################################
 echo "Installing dependencies for qiime_deploy and R"
 cd /home/ubuntu
-sudo bash
+#sudo bash
 ### for R install later add cran release specific repos to /etc/apt/sources.list
 # echo deb http://cran.rstudio.com/bin/linux/ubuntu precise/ >> /etc/apt/sources.list # 12.04 # Only exist for LTS - check version with lsb_release -a
 echo deb http://cran.rstudio.com/bin/linux/ubuntu trusty/ >> /etc/apt/sources.list  # 14.04 # Only exist for LTS - check version with lsb_release -a
@@ -54,7 +54,7 @@ apt-get -y update
 apt-get -y upgrade 
 ### install required packages
 apt-get -y install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion build-essential zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev
-exit
+#exit
 echo "DONE"
 ####################################################################################
 
