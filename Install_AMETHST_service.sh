@@ -46,6 +46,7 @@ git clone kbase@git.kbase.us:bootstrap
 
 # create directory for runtime
 mkdir -p /kb/runtime
+
 # add it as env variable
 target=/kb/runtime
 
@@ -65,7 +66,7 @@ git clone kbase@git.kbase.us:jars.git # needs the key from above
 
 # deploy services 
 cd /home/ubuntu/dev_container
-source /kb/runtime/env/java-build-runtime.env 
+# source /kb/runtime/env/java-build-runtime.env 
 ./bootstrap /kb/runtime
 . user-env.sh
 make 
@@ -77,83 +78,80 @@ source /kb/deployment/user-env.sh
 # location of AMETHST binary
 # /home/ubuntu/dev_container/modules/amethst_service/AMETHST
 # add AMETHST directory to path
-export PATH=/home/ubuntu/dev_container/modules/amethst_service/AMETHST/.:$PATH
+echo "export PATH=/home/ubuntu/dev_container/modules/amethst_service/AMETHST/.:$PATH" >> ~/.bashrc
+source ~/.bashrc
+###
 
 
 
 
 
+# ####################################################################################
+# ### Deploy client
+# sudo bash
+# cd /kb/dev_container/
+# ./bootstrap /kb/runtime
+# source /kb/dev_container/user-env.sh
 
+# cd /kb/dev_container/modules/amethst_service
+# git pull
+# make
+# make deploy-client
+# source /kb/deployment/user-env.sh
+# make test-client
+# ####################################################################################
 
+# ####################################################################################
+# ### Deploy and start service
+# ####################################################################################
+# sudo bash
+# cd /kb/dev_container/
+# ./bootstrap /kb/runtime
+# source /kb/dev_container/user-env.sh
 
+# cd /kb/dev_container/modules/amethst_service
+# git pull
+# make
+# make deploy-service
+# source /kb/deployment/user-env.sh
+# <here you might need to start service, not sure>
+# make test-service
+# ### Start AMETHST service manually
+# ## make sure that the amethst_service is running
+# ## start a screen session, then
+# #sudo bash
+# #source /kb/deployment/user-env.sh
+# #cd /kb/deployment/services/amethst_service/
+# #./start_service
+# ## exit (don’t kill) screen
+# ####################################################################################
 
+# ####################################################################################
+# ### Deploy backend and start AWE-client
+# ####################################################################################
+# sudo bash
+# cd /kb/dev_container/
+# ./bootstrap /kb/runtime
+# source /kb/dev_container/user-env.sh
 
-####################################################################################
-### Deploy client
-sudo bash
-cd /kb/dev_container/
-./bootstrap /kb/runtime
-source /kb/dev_container/user-env.sh
+# cd /kb/dev_container/modules/amethst_service
+# git pull
+# make
+# make deploy-backend
+# source /kb/deployment/user-env.sh
+# make test-backend
+# ####################################################################################
 
-cd /kb/dev_container/modules/amethst_service
-git pull
-make
-make deploy-client
-source /kb/deployment/user-env.sh
-make test-client
-####################################################################################
+# ####################################################################################
+# ### start AWE client
+# ####################################################################################
+# ### start AWE client (remotely)
+# #vmAWE.pl --group amethst-wolfgang --command="sudo /kb/deployment/services/awe_service/start_aweclient"
+# ### start AWE client (locally as ubuntu user):
+# #sudo /kb/deployment/services/awe_service/start_aweclient
+# ####################################################################################
 
-####################################################################################
-### Deploy and start service
-####################################################################################
-sudo bash
-cd /kb/dev_container/
-./bootstrap /kb/runtime
-source /kb/dev_container/user-env.sh
-
-cd /kb/dev_container/modules/amethst_service
-git pull
-make
-make deploy-service
-source /kb/deployment/user-env.sh
-<here you might need to start service, not sure>
-make test-service
-### Start AMETHST service manually
-## make sure that the amethst_service is running
-## start a screen session, then
-#sudo bash
-#source /kb/deployment/user-env.sh
-#cd /kb/deployment/services/amethst_service/
-#./start_service
-## exit (don’t kill) screen
-####################################################################################
-
-####################################################################################
-### Deploy backend and start AWE-client
-####################################################################################
-sudo bash
-cd /kb/dev_container/
-./bootstrap /kb/runtime
-source /kb/dev_container/user-env.sh
-
-cd /kb/dev_container/modules/amethst_service
-git pull
-make
-make deploy-backend
-source /kb/deployment/user-env.sh
-make test-backend
-####################################################################################
-
-####################################################################################
-### start AWE client
-####################################################################################
-### start AWE client (remotely)
-#vmAWE.pl --group amethst-wolfgang --command="sudo /kb/deployment/services/awe_service/start_aweclient"
-### start AWE client (locally as ubuntu user):
-#sudo /kb/deployment/services/awe_service/start_aweclient
-####################################################################################
-
-####################################################################################
-### check status on AWE monitor
-#http://140.221.85.36:8080/awemonitor.html
-####################################################################################
+# ####################################################################################
+# ### check status on AWE monitor
+# #http://140.221.85.36:8080/awemonitor.html
+# ####################################################################################

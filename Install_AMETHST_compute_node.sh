@@ -2,7 +2,13 @@
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
 ### used this to spawn a 14.04 VM:
-# vmAWE.pl --create=1 --flavor_name=idp.100 --groupname=k_am_test.2 --key_name=kevin_share --image_name="Ubuntu Trusty 14.04" --namelist=yamato
+# vmAWE.pl --create=1 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="Ubuntu Trusty 14.04" --namelist=yamato
+### Then run this on the node to download and run this script
+#cd /home/ubuntu/
+#curl https://raw.githubusercontent.com/DrOppenheimer/Kevin_Installers/master/Install_AMETHST_compute_node.sh >> Install_AMETHST_compute_node.sh
+#sudo bash
+#chmod u=+x Install_AMETHST_compute_node.sh
+#/home/ubuntu/Install_AMETHST_compute_node.sh
 ####################################################################################
 
 ####################################################################################
@@ -10,7 +16,7 @@
 ####################################################################################
 cat >>/home/ubuntu/.bashrc<<EOF
 AWE_SERVER="http://140.221.84.145:8000"
-AWE_CLIENT_GROUP="k_am_test.2"
+AWE_CLIENT_GROUP="am_compute"
 EOF
 source /home/ubuntu/.bashrc
 ####################################################################################
