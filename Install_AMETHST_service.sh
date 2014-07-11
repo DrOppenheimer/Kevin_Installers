@@ -14,13 +14,13 @@ set -x # stops script on an error
 ####################################################################################
 ### prepare tmp directory (only backend needs that!)
 ####################################################################################
-sudo bash
-rm -r /tmp 
-mkdir -p /mnt/tmp/ 
-chmod 777 /mnt/tmp/
+#sudo bash
+sudo rm -r /tmp 
+sudo mkdir -p /mnt/tmp/ 
+sudo chmod 777 /mnt/tmp/
 #sudo ln -s /mnt/tmp/ /tmp
-ln -s /mnt/tmp/ /tmp
-exit
+sudo ln -s /mnt/tmp/ /tmp
+#exit
 ####################################################################################
 
 ####################################################################################
