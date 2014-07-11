@@ -15,7 +15,11 @@ set -x # stops script on an error
 ### prepare tmp directory (only backend needs that!)
 ####################################################################################
 sudo bash
-rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
+rm -r /tmp 
+mkdir -p /mnt/tmp/ 
+chmod 777 /mnt/tmp/
+#sudo ln -s /mnt/tmp/ /tmp
+ln -s /mnt/tmp/ /tmp
 exit
 ####################################################################################
 
