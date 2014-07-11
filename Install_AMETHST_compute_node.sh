@@ -202,6 +202,7 @@ echo "DONE testing AMETHST functionality"
 ####################################################################################
 ### INSTALL
 echo "Installing, configuring, and starting the AWE client"
+sudo bash << EOFSHELL9
 cd /home/ubuntu
 curl http://www.mcs.anl.gov/~wtang/files/install_aweclient.sh > install_aweclient.sh
 chmod u=+x install_aweclient.sh
@@ -240,6 +241,8 @@ EOFSCRIPT2
 ### Activate AWE client in a screen
 screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
 echo "DONE nstalling, configuring, and starting the AWE clientE"
+
+EOFSHELL9
 ####################################################################################
 
 ####################################################################################
