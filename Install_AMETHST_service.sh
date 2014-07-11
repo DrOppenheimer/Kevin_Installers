@@ -48,7 +48,10 @@ ssh-add ~/.ssh/id_rsa
 EOFSHELL2
 ####################################################################################################
 
-
+####################################################################################################
+### Kitchen sink - everything else needed to get the amethst service deployed
+####################################################################################################
+sudo bash << EOFSHELL3
 # install emacs and git
 apt-get install -y emacs git
 
@@ -90,10 +93,16 @@ source /kb/deployment/user-env.sh
 # location of AMETHST binary
 # /home/ubuntu/dev_container/modules/amethst_service/AMETHST
 # add AMETHST directory to path
-echo "export PATH=/home/ubuntu/dev_container/modules/amethst_service/AMETHST/.:$PATH" >> ~/.bashrc
-source ~/.bashrc
-###
+echo "export PATH=/home/ubuntu/dev_container/modules/amethst_service/AMETHST/:$PATH;" >> /kb/deployment/user-env.sh
+source /kb/deployment/user-env.sh
+echo "source /kb/deployment/user-env.sh" >> ~/.bashrc
+EOFSHELL3
+####################################################################################################
 
+
+
+# see configuration of the service here after delploy
+# /home/ubuntu/dev_container/modules/amethst_service
 
 
 

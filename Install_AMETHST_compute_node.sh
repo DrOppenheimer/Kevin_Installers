@@ -41,9 +41,7 @@ echo "DONE creating environment variables"
 ####################################################################################
 echo "moving /tmp"
 sudo bash << EOFSHELL2
-#sudo bash
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
-#exit
 EOFSHELL2
 echo "DONE moving /tmp"
 ####################################################################################
