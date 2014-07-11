@@ -17,6 +17,7 @@ set -x # print each command before execution
 ####################################################################################
 ### prepare tmp directory (only backend needs that!)
 ####################################################################################
+sudo bash << EOFSHELL1
 #sudo bash
 sudo rm -r /tmp 
 sudo mkdir -p /mnt/tmp/ 
@@ -24,12 +25,14 @@ sudo chmod 777 /mnt/tmp/
 #sudo ln -s /mnt/tmp/ /tmp
 sudo ln -s /mnt/tmp/ /tmp
 #exit
+EOFSHELL1
 ####################################################################################
 
 ####################################################################################
 ### copy the key from the existing vm 
 ############### A key like the one you get when you follow this procedure on a KB VM ###############
-sudo bash
+sudo bash << EOFSHELL2
+#sudo bash
 ### get the key
 head -n 42 /home/ubuntu/cloudinit.sh > cloudinit_key.sh 
 source /home/ubuntu/cloudinit_key.sh # don’t give location for runtime when asked - just ctrl c out
@@ -41,7 +44,8 @@ eval `ssh-agent -s`
 ### 3) add key: 
 ssh-add ~/.ssh/id_rsa
 # ( on the kbase image the rsa key is stored in the cloudinit.sh )
-exit
+#exit
+EOFSHELL2
 ####################################################################################################
 
 

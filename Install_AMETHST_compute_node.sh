@@ -165,7 +165,7 @@ echo "DONE installing R"
 ####################################################################################
 echo "Installing perl packages"
 sudo bash << EOFSHELL7
-sudo bash 
+#sudo bash 
 #curl -L http://cpanmin.us | perl - --sudo App::cpanminus
 curl -L http://cpanmin.us | perl - --sudo Statistics::Descriptive
 #cpan -f App::cpanminus # ? if this is first run of cpan, it will have to configure, can't figure out how to force yes for its questions
@@ -209,6 +209,7 @@ chmod u=+x install_aweclient.sh
 ./install_aweclient.sh
 source /home/ubuntu/.bashrc
 ### CONFIGURE
+
 cat >awe_client_config<<EOFSCRIPT2
 [Directories]
 # See documentation for details of deploying Shock
@@ -243,6 +244,7 @@ screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu
 echo "DONE nstalling, configuring, and starting the AWE clientE"
 
 EOFSHELL9
+echo "DONE installing, configuring, and starting the AWE client"
 ####################################################################################
 
 ####################################################################################
