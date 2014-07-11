@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #### THIS SCRIPT IS NOT COMPLETE YET 7-10-14
-
+set -e # print commands 
+set -x # stops script on an error
 
 ####################################################################################
 ### Start KBase-VM and deploy amethst module and its dependencies
