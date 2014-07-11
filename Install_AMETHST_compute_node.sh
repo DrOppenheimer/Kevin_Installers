@@ -1,4 +1,7 @@
-#!/bin/bash                                                                                                                                              
+#!/bin/bash
+set -e # print commands 
+set -x # stops script on an error
+#sudo bash << EOFSHELL                                                                                                                                              
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
 ### used this to spawn a 14.04 VM:
@@ -118,7 +121,7 @@ sudo bash
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
 # Install R packages, including matR, along with their dependencies
-cat >install_packages.r<<EOF
+cat >install_packages.r<<EOSCRIPT1
 ## Simple R script to install packages not included as part of r-base
 # Install these packages for matR and AMETHST
 install.packages(c("KernSmooth", "codetools", "httr", "scatterplot3d", "rgl", "matlab", "ecodist", "gplots", "devtools"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
@@ -132,7 +135,7 @@ source("http://bioconductor.org/biocLite.R")
 biocLite (pkgs=c("DESeq","preprocessCore"))
 dependencies()
 q()
-EOF
+EOSCRIPT1
 R --vanilla --slave < install_packages.r
 rm install_packages.r
 exit
@@ -182,7 +185,7 @@ chmod u=+x install_aweclient.sh
 ./install_aweclient.sh
 source /home/ubuntu/.bashrc
 ### CONFIGURE
-cat >awe_client_config<<EOF
+cat >awe_client_config<<EOSCRIPT2
 [Directories]
 # See documentation for details of deploying Shock
 site=$GOPATH/src/github.com/MG-RAST/AWE/site
@@ -209,7 +212,7 @@ password=
 #openstack_metadata_url=http://169.254.169.254/2009-04-04/meta-data
 domain=default-domain #e.g. megallan
 
-EOF
+EOSCRIPT2
 
 ### Activate AWE client in a screen
 screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
