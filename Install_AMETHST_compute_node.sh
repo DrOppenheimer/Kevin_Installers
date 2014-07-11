@@ -143,12 +143,12 @@ cat >install_packages.r<<EOFSCRIPT1
 install.packages(c("KernSmooth", "codetools", "httr", "scatterplot3d", "rgl", "matlab", "ecodist", "gplots", "devtools"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
 # Install these packages for Qiime
 install.packages(c("ape", "random-forest", "r-color-brewer", "klar", "vegan", "ecodist", "gtools", "optparse"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
-# Install matR
-library(devtools)
-install_github("MG-RAST/matR", dependencies=FALSE)
-library(matR)
 source("http://bioconductor.org/biocLite.R")
 biocLite (pkgs=c("DESeq","preprocessCore"), lib="/usr/lib/R/library")
+# Install matR
+library(devtools)
+install_github(repo="MG-RAST/matR", dependencies=FALSE)
+library(matR)
 dependencies()
 q()
 EOFSCRIPT1
