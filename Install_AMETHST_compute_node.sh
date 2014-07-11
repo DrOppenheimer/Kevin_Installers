@@ -9,15 +9,16 @@ set -x # print each command before execution
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
 ### used this to spawn a 14.04 VM:
-# vmAWE.pl --create=1 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="Ubuntu Trusty 14.04" --namelist=yamato
-### Then run this on the node to download and run this script
-#cd /home/ubuntu/
-#curl https://raw.githubusercontent.com/DrOppenheimer/Kevin_Installers/master/Install_AMETHST_compute_node.sh >> Install_AMETHST_compute_node.sh
-#sudo bash
-#chmod u=+x Install_AMETHST_compute_node.sh
-#/home/ubuntu/Install_AMETHST_compute_node.sh
-### Stay in the super user bash
+#vmAWE.pl --create=1 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="Ubuntu Trusty 14.04" --namelist=yamato
+### Then run these commands to download this script and run it
+#sudo apt-get -y install git
+#git clone https://github.com/DrOppenheimer/Kevin_Installers.git
+#ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
+#./Install_AMETHST_compute_node.sh
 ####################################################################################
+
+
+
 
 ####################################################################################
 ### Create envrionment variables for key options
@@ -65,7 +66,7 @@ sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit
 apt-get -y update
 apt-get -y upgrade 
 ### install required packages
-apt-get -y install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion build-essential zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev
+apt-get -y install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion build-essential zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev  mongodb-server bzr make gcc mercurial
 #exit
 EOFSHELL3
 echo "DONE Installing dependencies for qiime_deploy and R"
@@ -241,7 +242,6 @@ EOFSCRIPT2
 
 ### Activate AWE client in a screen
 screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
-echo "DONE nstalling, configuring, and starting the AWE clientE"
 
 EOFSHELL9
 echo "DONE installing, configuring, and starting the AWE client"
