@@ -2,9 +2,6 @@
 
 set -e # checking of all commands 
 set -x # print each command before execution
-
-#sudo bash << EOFSHELL # wrapper to run whole shell as root
-#EOFSHELL              #
                                                                                                                             
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
@@ -17,13 +14,9 @@ set -x # print each command before execution
 #./Install_AMETHST_compute_node.sh
 ####################################################################################
 
-
-
-
 ####################################################################################
 ### Create envrionment variables for key options
 ####################################################################################
-#sudo bash
 echo "Creating environment variables"
 sudo bash << EOFSHELL1
 cat >>/home/ubuntu/.bashrc<<EOF
@@ -32,7 +25,6 @@ AWE_CLIENT_GROUP="am_compute"
 EOF
 source /home/ubuntu/.bashrc
 EOFSHELL1
-#exit
 echo "DONE creating environment variables"
 ####################################################################################
 
@@ -51,7 +43,6 @@ echo "DONE moving /tmp"
 ####################################################################################
 echo "Installing dependencies for qiime_deploy and R"
 cd /home/ubuntu
-#sudo bash
 sudo bash << EOFSHELL3
 ### for R install later add cran release specific repos to /etc/apt/sources.list
 # echo deb http://cran.rstudio.com/bin/linux/ubuntu precise/ >> /etc/apt/sources.list # 12.04 # Only exist for LTS - check version with lsb_release -a
@@ -86,18 +77,9 @@ echo "DONE cloning the qiime-deploy and AMETHST git repos"
 ## This will also install cdbfasta & cdbyank, python and perl
 ## Uncomment the universe and multiverse repositories from /etc/apt/sources.list
 echo "Installing Qiime"
-# sudo bash
 sudo bash << EOFSHELL4
-# sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit; mv /etc/apt/sources.list.edit /etc/apt/sources.list
-# exit
-## see qiime-deploy options
-# python ~/qiime-deploy/qiime-deploy.py -h
-# Installation of Qiime with edited qiime config in the AMETHST repo
 cd /home/ubuntu/
 sudo python ./qiime-deploy/qiime-deploy.py ./qiime_software/ -f ./AMETHST/qiime_configuration/qiime.amethst.config --force-remove-failed-dirs
-# NOTE that this installation of Qiime uses a heavily edited version of the configuration file found here:
-# https://github.com/qiime/qiime-deploy-conf/blob/master/qiime-1.8.0/qiime.conf
-# Notable differences — leave many of the components uninstalled, is not used to install R, we do that below
 EOFSHELL4
 echo "DONE Installing Qiime"
 ####################################################################################
@@ -106,7 +88,6 @@ echo "DONE Installing Qiime"
 ### INSTALL cdbtools (Took care of the cdb failure above)
 ####################################################################################
 echo "Installing cdbtools"
-#sudo bash
 sudo bash << EOFSHELL5
 CURL="http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files"
 CBASE="cdbfasta"
@@ -121,7 +102,6 @@ cp cdbyank $IDIR/bin/.
 popd
 rm $CBASE".tar.gz"
 rm -rf $CBASE
-#exit
 EOFSHELL5
 echo "DONE installing cdbtools"
 ####################################################################################
@@ -130,7 +110,6 @@ echo "DONE installing cdbtools"
 ### INSTALL most current R on Ubuntu 14.04, install multiple non-base packages
 ####################################################################################
 echo "Installing R"
-#sudo bash
 sudo bash << EOFSHELL6
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
@@ -164,13 +143,11 @@ echo "DONE installing R"
 ####################################################################################
 echo "Installing perl packages"
 sudo bash << EOFSHELL7
-#sudo bash 
 #curl -L http://cpanmin.us | perl - --sudo App::cpanminus
 curl -L http://cpanmin.us | perl - --sudo Statistics::Descriptive
 #cpan -f App::cpanminus # ? if this is first run of cpan, it will have to configure, can't figure out how to force yes for its questions
 #                       # this may already be installed
 #cpanm Statistics::Descriptive
-#exit
 EOFSHELL7
 echo "DONE installing perl packages"
 ####################################################################################
