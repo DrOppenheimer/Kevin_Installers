@@ -1,7 +1,11 @@
 #!/bin/bash
-set -e # print commands 
-set -x # stops script on an error
-#sudo bash << EOFSHELL                                                                                                                                              
+
+set -e # checking of all commands 
+set -x # print each command before execution
+
+#sudo bash << EOFSHELL # wrapper to run whole shell as root
+#EOFSHELL              #
+                                                                                                                            
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
 ### used this to spawn a 14.04 VM:
@@ -26,7 +30,7 @@ AWE_CLIENT_GROUP="am_compute"
 EOF
 source /home/ubuntu/.bashrc
 #exit
-echo "DONE"
+echo "DONE creating environment variables"
 ####################################################################################
 
 ####################################################################################
@@ -36,7 +40,7 @@ echo "moving /tmp"
 #sudo bash
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
 #exit
-echo "DONE"
+echo "DONE moving /tmp"
 ####################################################################################
 
 ####################################################################################
@@ -58,7 +62,7 @@ apt-get -y upgrade
 ### install required packages
 apt-get -y install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion build-essential zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev
 #exit
-echo "DONE"
+echo "DONE Installing dependencies for qiime_deploy and R"
 ####################################################################################
 
 ####################################################################################
@@ -68,7 +72,7 @@ echo "Cloning the qiime-deploy and AMETHST git repos"
 cd /home/ubuntu/
 git clone git://github.com/qiime/qiime-deploy.git
 git clone https://github.com/MG-RAST/AMETHST.git
-echo "DONE"
+echo "DONE cloning the qiime-deploy and AMETHST git repos"
 ####################################################################################
 
 ####################################################################################
@@ -88,14 +92,14 @@ sudo python ./qiime-deploy/qiime-deploy.py ./qiime_software/ -f ./AMETHST/qiime_
 # NOTE that this installation of Qiime uses a heavily edited version of the configuration file found here:
 # https://github.com/qiime/qiime-deploy-conf/blob/master/qiime-1.8.0/qiime.conf
 # Notable differences — leave many of the components uninstalled, is not used to install R, we do that below
-echo "DONE"
+echo "DONE Installing Qiime"
 ####################################################################################
 
 ####################################################################################
 ### INSTALL cdbtools (Took care of the cdb failure above)
 ####################################################################################
 echo "Installing cdbtools"
-sudo bash
+#sudo bash
 CURL="http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files"
 CBASE="cdbfasta"
 #echo "###### downloading $CBASE ######"
@@ -109,8 +113,8 @@ cp cdbyank $IDIR/bin/.
 popd
 rm $CBASE".tar.gz"
 rm -rf $CBASE
-exit
-echo "DONE"
+#exit
+echo "DONE installing cdbtools"
 ####################################################################################
 
 ####################################################################################
@@ -121,7 +125,7 @@ sudo bash
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
 # Install R packages, including matR, along with their dependencies
-cat >install_packages.r<<EOSCRIPT1
+cat >install_packages.r<<EOFSCRIPT1
 ## Simple R script to install packages not included as part of r-base
 # Install these packages for matR and AMETHST
 install.packages(c("KernSmooth", "codetools", "httr", "scatterplot3d", "rgl", "matlab", "ecodist", "gplots", "devtools"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
@@ -135,11 +139,11 @@ source("http://bioconductor.org/biocLite.R")
 biocLite (pkgs=c("DESeq","preprocessCore"))
 dependencies()
 q()
-EOSCRIPT1
+EOFSCRIPT1
 R --vanilla --slave < install_packages.r
 rm install_packages.r
 exit
-echo "DONE"
+echo "DONE installing R"
 ####################################################################################
 
 ####################################################################################
@@ -153,7 +157,7 @@ curl -L http://cpanmin.us | perl - --sudo Statistics::Descriptive
 #                       # this may already be installed
 #cpanm Statistics::Descriptive
 exit
-echo "DONE"
+echo "DONE installing perl packages"
 ####################################################################################
 
 ####################################################################################
@@ -163,7 +167,7 @@ sudo bash
 echo "export PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.bashrc
 source ~/.bashrc
 exit
-echo "DONE"
+echo "DONE adding AMETHST to the PATH"
 ####################################################################################
 
 ####################################################################################
@@ -171,7 +175,7 @@ echo "DONE"
 ####################################################################################
 echo "TESTING AMETHST FUNCTIONALITY"
 test_amethst.sh
-echo "DONE"
+echo "DONE testing AMETHST functionality"
 ####################################################################################
 
 ####################################################################################
@@ -185,7 +189,7 @@ chmod u=+x install_aweclient.sh
 ./install_aweclient.sh
 source /home/ubuntu/.bashrc
 ### CONFIGURE
-cat >awe_client_config<<EOSCRIPT2
+cat >awe_client_config<<EOFSCRIPT2
 [Directories]
 # See documentation for details of deploying Shock
 site=$GOPATH/src/github.com/MG-RAST/AWE/site
@@ -212,11 +216,11 @@ password=
 #openstack_metadata_url=http://169.254.169.254/2009-04-04/meta-data
 domain=default-domain #e.g. megallan
 
-EOSCRIPT2
+EOFSCRIPT2
 
 ### Activate AWE client in a screen
 screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
-echo "DONE WITH INSTALLTION AND CONFIGURATION OF AMETHST-service COMPUTE NODE"
+echo "DONE nstalling, configuring, and starting the AWE clientE"
 ####################################################################################
 
 ####################################################################################

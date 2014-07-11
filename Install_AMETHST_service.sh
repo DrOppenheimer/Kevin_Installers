@@ -1,8 +1,11 @@
 #!/bin/bash
 
 #### THIS SCRIPT IS NOT COMPLETE YET 7-10-14
-set -e # print commands 
-set -x # stops script on an error
+set -e # checking of all commands 
+set -x # print each command before execution
+
+#sudo bash << EOFSHELL # wrapper to run whole shell as root
+#EOFSHELL              #
 
 ####################################################################################
 ### Start KBase-VM and deploy amethst module and its dependencies
