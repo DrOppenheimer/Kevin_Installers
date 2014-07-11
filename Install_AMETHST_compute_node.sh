@@ -190,6 +190,7 @@ echo "DONE adding AMETHST to the PATH"
 ### Test AMETHST function
 ####################################################################################
 echo "TESTING AMETHST FUNCTIONALITY"
+source ~/.bashrc
 test_amethst.sh
 echo "DONE testing AMETHST functionality"
 ####################################################################################
