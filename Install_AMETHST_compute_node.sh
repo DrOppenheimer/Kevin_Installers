@@ -131,11 +131,12 @@ echo "DONE installing cdbtools"
 ### INSTALL most current R on Ubuntu 14.04, install multiple non-base packages
 ####################################################################################
 echo "Installing R"
-sudo bash << EOFSHELL6
 #sudo bash
+sudo bash << EOFSHELL6
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
 # Install R packages, including matR, along with their dependencies
+
 cat >install_packages.r<<EOFSCRIPT1
 ## Simple R script to install packages not included as part of r-base
 # Install these packages for matR and AMETHST
@@ -147,13 +148,14 @@ library(devtools)
 install_github("MG-RAST/matR", dependencies=FALSE)
 library(matR)
 source("http://bioconductor.org/biocLite.R")
-biocLite (pkgs=c("DESeq","preprocessCore"))
+biocLite (pkgs=c("DESeq","preprocessCore"), lib="/usr/lib/R/library")
 dependencies()
 q()
 EOFSCRIPT1
+
 R --vanilla --slave < install_packages.r
 rm install_packages.r
-#exit
+
 EOFSHELL6
 echo "DONE installing R"
 ####################################################################################
