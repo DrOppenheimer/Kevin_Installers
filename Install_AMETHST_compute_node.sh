@@ -39,9 +39,11 @@ echo "DONE creating environment variables"
 ### move /tmp to /mnt/tmp (compute frequntly needs the space, exact amount depends on data)
 ####################################################################################
 echo "moving /tmp"
+sudo bash << EOFSHELL2
 #sudo bash
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
 #exit
+EOFSHELL2
 echo "DONE moving /tmp"
 ####################################################################################
 
@@ -51,7 +53,7 @@ echo "DONE moving /tmp"
 echo "Installing dependencies for qiime_deploy and R"
 cd /home/ubuntu
 #sudo bash
-sudo bash << EOFSHELL2
+sudo bash << EOFSHELL3
 ### for R install later add cran release specific repos to /etc/apt/sources.list
 # echo deb http://cran.rstudio.com/bin/linux/ubuntu precise/ >> /etc/apt/sources.list # 12.04 # Only exist for LTS - check version with lsb_release -a
 echo deb http://cran.rstudio.com/bin/linux/ubuntu trusty/ >> /etc/apt/sources.list  # 14.04 # Only exist for LTS - check version with lsb_release -a
@@ -65,7 +67,7 @@ apt-get -y upgrade
 ### install required packages
 apt-get -y install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion build-essential zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev
 #exit
-EOFSHELL2
+EOFSHELL3
 echo "DONE Installing dependencies for qiime_deploy and R"
 ####################################################################################
 
@@ -86,7 +88,7 @@ echo "DONE cloning the qiime-deploy and AMETHST git repos"
 ## Uncomment the universe and multiverse repositories from /etc/apt/sources.list
 echo "Installing Qiime"
 # sudo bash
-sudo bash << EOFSHELL3
+sudo bash << EOFSHELL4
 # sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit; mv /etc/apt/sources.list.edit /etc/apt/sources.list
 # exit
 ## see qiime-deploy options
@@ -97,7 +99,7 @@ sudo python ./qiime-deploy/qiime-deploy.py ./qiime_software/ -f ./AMETHST/qiime_
 # NOTE that this installation of Qiime uses a heavily edited version of the configuration file found here:
 # https://github.com/qiime/qiime-deploy-conf/blob/master/qiime-1.8.0/qiime.conf
 # Notable differences — leave many of the components uninstalled, is not used to install R, we do that below
-EOFSHELL3
+EOFSHELL4
 echo "DONE Installing Qiime"
 ####################################################################################
 
@@ -106,7 +108,7 @@ echo "DONE Installing Qiime"
 ####################################################################################
 echo "Installing cdbtools"
 #sudo bash
-sudo bash << EOFSHELL4
+sudo bash << EOFSHELL5
 CURL="http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files"
 CBASE="cdbfasta"
 #echo "###### downloading $CBASE ######"
@@ -121,7 +123,7 @@ popd
 rm $CBASE".tar.gz"
 rm -rf $CBASE
 #exit
-EOFSHELL4
+EOFSHELL5
 echo "DONE installing cdbtools"
 ####################################################################################
 
@@ -129,7 +131,7 @@ echo "DONE installing cdbtools"
 ### INSTALL most current R on Ubuntu 14.04, install multiple non-base packages
 ####################################################################################
 echo "Installing R"
-sudo bash << EOFSHELL5
+sudo bash << EOFSHELL6
 #sudo bash
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
@@ -152,7 +154,7 @@ EOFSCRIPT1
 R --vanilla --slave < install_packages.r
 rm install_packages.r
 #exit
-EOFSHELL5
+EOFSHELL6
 echo "DONE installing R"
 ####################################################################################
 
@@ -160,7 +162,7 @@ echo "DONE installing R"
 #### install perl packages
 ####################################################################################
 echo "Installing perl packages"
-sudo bash << EOFSHELL6
+sudo bash << EOFSHELL7
 sudo bash 
 #curl -L http://cpanmin.us | perl - --sudo App::cpanminus
 curl -L http://cpanmin.us | perl - --sudo Statistics::Descriptive
@@ -168,19 +170,19 @@ curl -L http://cpanmin.us | perl - --sudo Statistics::Descriptive
 #                       # this may already be installed
 #cpanm Statistics::Descriptive
 #exit
-EOFSHELL6
+EOFSHELL7
 echo "DONE installing perl packages"
 ####################################################################################
 
 ####################################################################################
 ### Add AMETHST to Path (permanently)
 echo "Adding AMETHST to the PATH"
-sudo bash << EOFSHELL7
+sudo bash << EOFSHELL8
 sudo bash 
 echo "export PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.bashrc
 source ~/.bashrc
 #exit
-EOFSHELL7
+EOFSHELL8
 echo "DONE adding AMETHST to the PATH"
 ####################################################################################
 
