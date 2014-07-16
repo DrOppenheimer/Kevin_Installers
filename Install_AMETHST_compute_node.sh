@@ -117,7 +117,7 @@ echo "Installing R"
 sudo bash << EOFSHELL6
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
-apt-get -y autoclean
+apt-get -y clean
 # Install R packages, including matR, along with their dependencies
 
 cat >install_packages.r<<EOFSCRIPT1
