@@ -90,6 +90,44 @@ make deploy
 # source environment
 source /kb/deployment/user-env.sh
 
+
+###################################################
+###################################################
+Deploy and start service
+sudo bash
+cd /kb/dev_container/
+./bootstrap /kb/runtime
+source /kb/dev_container/user-env.sh
+
+cd /kb/dev_container/modules/amethst_service
+git pull
+make
+make deploy-service
+source /kb/deployment/user-env.sh
+<here you might need to start service, not sure>
+make test-service
+
+
+Start AMETHST service manually
+# make sure that the amethst_service is running
+# start a screen session, then
+sudo bash
+source /kb/deployment/user-env.sh
+cd /kb/deployment/services/amethst_service/
+./start_service
+# exit (don’t kill) screen
+
+# This did not install the amethst_service (5-9-14)
+# how do I install the service “by hand” ?
+###################################################
+###################################################
+
+
+
+
+
+
+
 # location of AMETHST binary
 # /home/ubuntu/dev_container/modules/amethst_service/AMETHST
 # add AMETHST directory to path
@@ -99,6 +137,52 @@ echo "source /kb/deployment/user-env.sh" >> ~/.bashrc
 EOFSHELL3
 ####################################################################################################
 
+
+
+
+
+# Deploy client
+# sudo bash
+# cd /kb/dev_container/
+# ./bootstrap /kb/runtime
+# source /kb/dev_container/user-env.sh
+
+# cd /kb/dev_container/modules/amethst_service
+# git pull
+# make
+# make deploy-client
+# source /kb/deployment/user-env.sh
+# make test-client
+
+# Deploy and start service
+# sudo bash
+# cd /kb/dev_container/
+# ./bootstrap /kb/runtime
+# source /kb/dev_container/user-env.sh
+
+# cd /kb/dev_container/modules/amethst_service
+# git pull
+# make
+# make deploy-service
+# source /kb/deployment/user-env.sh
+# <here you might need to start service, not sure>
+# make test-service
+
+
+# Start AMETHST service manually
+# # make sure that the amethst_service is running
+# # start a screen session, then
+# sudo bash
+# source /kb/deployment/user-env.sh
+# cd /kb/deployment/services/amethst_service/
+# ./start_service
+# # exit (don’t kill) screen
+
+
+
+
+
+# make sure that auth token is on the VM
 
 
 # see configuration of the service here after delploy
