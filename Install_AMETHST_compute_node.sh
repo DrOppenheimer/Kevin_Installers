@@ -24,7 +24,6 @@ sudo bash << EOFSHELL1
 cat >>/home/ubuntu/.bashrc<<EOF
 AWE_SERVER="http://140.221.84.145:8000"
 AWE_CLIENT_GROUP="am_compute"
-QIIME_INSTALL_PATH="/home/ubuntu/qiime_software"
 EOF
 source /home/ubuntu/.bashrc
 EOFSHELL1
@@ -84,7 +83,7 @@ echo "DONE cloning the qiime-deploy and AMETHST git repos"
 echo "Installing Qiime"
 sudo bash << EOFSHELL4
 cd /home/ubuntu/
-sudo python ./qiime-deploy/qiime-deploy.py $QIIME_INSTALL_PATH -f ./AMETHST/qiime_configuration/qiime.amethst.config --force-remove-failed-dirs
+sudo python ./qiime-deploy/qiime-deploy.py /home/ubuntu/qiime_software -f ./AMETHST/qiime_configuration/qiime.amethst.config --force-remove-failed-dirs
 apt-get -y clean
 EOFSHELL4
 echo "DONE Installing Qiime"
@@ -164,7 +163,7 @@ echo "DONE installing perl packages"
 echo "Adding AMETHST to the PATH"
 sudo bash << EOFSHELL8
 sudo bash 
-echo "export PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.bashrc
+echo "PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.bashrc
 source ~/.bashrc
 #exit
 EOFSHELL8
