@@ -24,6 +24,7 @@ sudo bash << EOFSHELL1
 cat >>/home/ubuntu/.bashrc<<EOF
 AWE_SERVER="http://140.221.84.145:8000"
 AWE_CLIENT_GROUP="am_compute"
+QIIME_INSTALL_PATH="/home/ubuntu/qiime_software"
 EOF
 source /home/ubuntu/.bashrc
 EOFSHELL1
@@ -59,7 +60,7 @@ apt-get -y update
 apt-get -y upgrade 
 ### install required packages
 apt-get -y install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev mongodb-server bzr make gcc mercurial python-qcli
-#apt-get -y autoclean
+#apt-get -y clean
 #exit
 EOFSHELL3
 echo "DONE Installing dependencies for qiime_deploy and R"
@@ -83,7 +84,8 @@ echo "DONE cloning the qiime-deploy and AMETHST git repos"
 echo "Installing Qiime"
 sudo bash << EOFSHELL4
 cd /home/ubuntu/
-sudo python ./qiime-deploy/qiime-deploy.py /mnt/qiime_software/ -f ./AMETHST/qiime_configuration/qiime.amethst.config --force-remove-failed-dirs
+sudo python ./qiime-deploy/qiime-deploy.py $QIIME_INSTALL_PATH -f ./AMETHST/qiime_configuration/qiime.amethst.config --force-remove-failed-dirs
+apt-get -y clean
 EOFSHELL4
 echo "DONE Installing Qiime"
 ####################################################################################
@@ -91,23 +93,23 @@ echo "DONE Installing Qiime"
 ####################################################################################
 ### INSTALL cdbtools (Took care of the cdb failure above)
 ####################################################################################
-echo "Installing cdbtools"
-sudo bash << EOFSHELL5
-CURL="http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files"
-CBASE="cdbfasta"
-#echo "###### downloading $CBASE ######"
-curl -L $CURL > $CBASE".tar.gz"
-tar zxf $CBASE".tar.gz"
-#echo "###### installing $CBASE ######"
-pushd $CBASE
-make
-cp cdbfasta $IDIR/bin/.
-cp cdbyank $IDIR/bin/.
-popd
-rm $CBASE".tar.gz"
-rm -rf $CBASE
-EOFSHELL5
-echo "DONE installing cdbtools"
+# echo "Installing cdbtools"
+# sudo bash << EOFSHELL5
+# CURL="http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files"
+# CBASE="cdbfasta"
+# #echo "###### downloading $CBASE ######"
+# curl -L $CURL > $CBASE".tar.gz"
+# tar zxf $CBASE".tar.gz"
+# #echo "###### installing $CBASE ######"
+# pushd $CBASE
+# make
+# cp cdbfasta $IDIR/bin/.
+# cp cdbyank $IDIR/bin/.
+# popd
+# rm $CBASE".tar.gz"
+# rm -rf $CBASE
+# EOFSHELL5
+# echo "DONE installing cdbtools"
 ####################################################################################
 
 ####################################################################################
