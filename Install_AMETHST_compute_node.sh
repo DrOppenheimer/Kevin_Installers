@@ -13,7 +13,9 @@ set -x # print each command before execution
 #ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
 #./Install_AMETHST_compute_node.sh
 ### To start nodes preconfigured with this script
-#vmAWE.pl --create=4 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="AMETHST.7-11-14"
+#vmAWE.pl --create=4 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.7-18-14"
+# Name: am_comp.7-18-14
+# ID :  54868d64-44e1-4fb4-a890-67f5c49ea447
 ####################################################################################
 
 ####################################################################################
