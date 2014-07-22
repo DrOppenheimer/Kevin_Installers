@@ -13,7 +13,7 @@ set -x # print each command before execution
 #ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
 #./Install_AMETHST_compute_node.sh
 ### To start nodes preconfigured with this script
-#vmAWE.pl --create=4 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.7-18-14"
+#vmAWE.pl --create=4 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.7-18-14" --nogroupcheck --greedy
 # Name: am_comp.7-18-14
 # ID :  54868d64-44e1-4fb4-a890-67f5c49ea447
 ####################################################################################
@@ -222,11 +222,19 @@ password=
 domain=default-domain #e.g. megallan
 
 EOFSCRIPT2
+EOFSHELL9
+echo "DONE installing, configuring, - rebooting to start the AWE client"
 
 ### Activate AWE client in a screen
-screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
+sudo bash << EOFSHELL10  # execution or something
+rm /etc/rc.local
+echo '#!/bin/sh -e' > /etc/rc.local ## THIS STILL NEEDS WORK
+echo "sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config" >> /etc/rc.local
+chmod a=x /etc/rc.local
+sudo reboot
+EOFSHELL10
 
-EOFSHELL9
+
 echo "DONE installing, configuring, and starting the AWE client"
 ####################################################################################
 
