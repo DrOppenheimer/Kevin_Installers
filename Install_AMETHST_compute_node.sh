@@ -13,9 +13,9 @@ set -x # print each command before execution
 #ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
 #./Install_AMETHST_compute_node.sh
 ### To start nodes preconfigured with this script
-#vmAWE.pl --create=4 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.7-18-14" --nogroupcheck --greedy
-# Name: am_comp.7-18-14
-# ID :  54868d64-44e1-4fb4-a890-67f5c49ea447
+#vmAWE.pl --create=5 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.7-22-14" --nogroupcheck --greedy
+# Name: am_comp.7-22-14
+# ID :  29db25f2-d80d-4018-a9c3-7b68ba63d1f5
 ####################################################################################
 
 ####################################################################################
@@ -225,10 +225,10 @@ EOFSCRIPT2
 EOFSHELL9
 echo "DONE installing, configuring, - rebooting to start the AWE client"
 
-### Activate AWE client in a screen
-sudo bash << EOFSHELL10  # execution or something
+### make sure AWE client is activated, in a screen, at boot
+sudo bash << EOFSHELL10
 rm /etc/rc.local
-echo '#!/bin/sh -e' > /etc/rc.local ## THIS STILL NEEDS WORK
+echo '#!/bin/sh -e' > /etc/rc.local
 echo "sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config" >> /etc/rc.local
 chmod a=x /etc/rc.local
 sudo reboot
