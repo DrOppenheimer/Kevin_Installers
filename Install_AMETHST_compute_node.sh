@@ -2,6 +2,14 @@
 
 set -e # checking of all commands 
 set -x # print each command before execution
+
+# NOTES: 7-22-14
+# I have never gotten this script to run to completion automatically.
+# It always breaks on installations of Qiime, but almost never at the same point.
+# Long term solution is probably to use Wolfgang's docker for Qiime
+# I have used this procedure to create this Magellan snapshot:
+# Name: am_comp.7-22-14
+# ID :  29db25f2-d80d-4018-a9c3-7b68ba63d1f5
                                                                                                                             
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
