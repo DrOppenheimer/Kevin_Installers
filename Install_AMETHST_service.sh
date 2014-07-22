@@ -122,12 +122,6 @@ cd /kb/deployment/services/amethst_service/
 ###################################################
 ###################################################
 
-
-
-
-
-
-
 # location of AMETHST binary
 # /home/ubuntu/dev_container/modules/amethst_service/AMETHST
 # add AMETHST directory to path
@@ -135,6 +129,21 @@ echo "export PATH=/home/ubuntu/dev_container/modules/amethst_service/AMETHST/:$P
 source /kb/deployment/user-env.sh
 echo "source /kb/deployment/user-env.sh" >> ~/.bashrc
 EOFSHELL3
+
+
+# Force AMETHST service to start on boot
+sudo bash << EOFSHELL4
+cd /home/ubuntu
+echo '#!/bin/sh' > start_AMETHST_service.sh
+echo "source /kb/deployment/user-env.sh; source /kb/deployment/user-env.sh; /kb/deployment/services/amethst_service/start_service" >>  start_AMETHST_service.sh
+chmod +x start_AMETHST_service.sh
+rm /etc/rc.local
+echo '#!/bin/sh -e' > /etc/rc.local
+echo "sudo screen -S awe_client -d -m /home/ubuntu/start_AMETHST_service.sh" >> /etc/rc.local
+chmod +x /etc/rc.local
+sudo reboot
+EOFSHELL4
+
 ####################################################################################################
 
 
