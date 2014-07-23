@@ -31,11 +31,11 @@ set -x # print each command before execution
 ####################################################################################
 echo "Creating environment variables"
 sudo bash << EOFSHELL1
-cat >>/home/ubuntu/.bashrc<<EOF
-AWE_SERVER="http://140.221.84.145:8000"
-AWE_CLIENT_GROUP="am_compute"
+cat >>/home/ubuntu/.profile<<EOF
+export AWE_SERVER="http://140.221.84.145:8000"
+export AWE_CLIENT_GROUP="am_compute"
 EOF
-source /home/ubuntu/.bashrc
+source /home/ubuntu/.profile
 EOFSHELL1
 echo "DONE creating environment variables"
 ####################################################################################
@@ -43,10 +43,22 @@ echo "DONE creating environment variables"
 ####################################################################################
 ### move /tmp to /mnt/tmp (compute frequntly needs the space, exact amount depends on data)
 ####################################################################################
-echo "moving /tmp"
+### First - create script that will check for proper /tmp confuguration and adjust at boot
+
+
+### replace tmp on current instance - add acript to /etc/rc.local that will cause it to be replaced in VMs generated from snapshot
 sudo bash << EOFSHELL2
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
+chmod +x /home/ubuntu/change_tmp.sh 
+rm /etc/rc.local
+echo '#!/bin/sh -e' > /etc/rc.local
+echo "/home/ubuntu/Kevin_Installers/change_tmp.sh" >> /etc/rc.local
 EOFSHELL2
+
+#echo "moving /tmp"
+#sudo bash << EOFSHELL2
+#rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
+#EOFSHELL2
 echo "DONE moving /tmp"
 ####################################################################################
 
@@ -82,6 +94,7 @@ echo "Cloning the qiime-deploy and AMETHST git repos"
 cd /home/ubuntu/
 git clone git://github.com/qiime/qiime-deploy.git
 git clone https://github.com/MG-RAST/AMETHST.git
+git clone https://github.com/DrOppenheimer/Kevin_Installers.git
 echo "DONE cloning the qiime-deploy and AMETHST git repos"
 ####################################################################################
 
@@ -173,18 +186,18 @@ echo "DONE installing perl packages"
 echo "Adding AMETHST to the PATH"
 sudo bash << EOFSHELL8
 sudo bash 
-echo "PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.bashrc
-source ~/.bashrc
+echo "export PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.profile
+source ~/.profile
 #exit
 EOFSHELL8
-echo "DONE adding AMETHST to the PATH"
+echo "DONE adding AMETHST to the PATH (full PATH is in ~/.profile)"
 ####################################################################################
 
 ####################################################################################
 ### Test AMETHST function
 ####################################################################################
 echo "TESTING AMETHST FUNCTIONALITY"
-source ~/.bashrc
+source ~/.profile
 test_amethst.sh
 echo "DONE testing AMETHST functionality"
 ####################################################################################
@@ -199,19 +212,17 @@ cd /home/ubuntu
 curl http://www.mcs.anl.gov/~wtang/files/install_aweclient.sh > install_aweclient.sh
 chmod u=+x install_aweclient.sh
 ./install_aweclient.sh
-source /home/ubuntu/.bashrc
+source /home/ubuntu/.profile
 ### CONFIGURE
 
-cat >awe_client_config<<EOFSCRIPT2
+cat >awe_client_config<<EOF_AWE_CONFIG_SCRIPT
 [Directories]
 # See documentation for details of deploying Shock
 site=$GOPATH/src/github.com/MG-RAST/AWE/site
 data=/mnt/data/awe/data
 logs=/mnt/data/awe/logs
-
 [Args]
 debuglevel=0
-
 [Client]
 totalworker=2
 workpath=/mnt/data/awe/work
@@ -228,20 +239,21 @@ password=
 #for openstack client only
 #openstack_metadata_url=http://169.254.169.254/2009-04-04/meta-data
 domain=default-domain #e.g. megallan
+EOF_AWE_CONFIG_SCRIPT
 
-EOFSCRIPT2
+
+
+
+
 EOFSHELL9
 echo "DONE installing, configuring, - rebooting to start the AWE client"
 
 ### make sure AWE client is activated, in a screen, at boot
 sudo bash << EOFSHELL10
-rm /etc/rc.local
-echo '#!/bin/sh -e' > /etc/rc.local
 echo "sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config" >> /etc/rc.local
 chmod a=x /etc/rc.local
 sudo reboot
 EOFSHELL10
-
 
 echo "DONE installing, configuring, and starting the AWE client"
 ####################################################################################
