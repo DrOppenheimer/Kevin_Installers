@@ -249,8 +249,14 @@ password=
 domain=default-domain #e.g. megallan
 EOF_4
 
+# create some easy links for awe data, log and work folders
+cd /home/ubuntu
+ln -s /mnt/data/awe/awe_data
+ln -s /mnt/data/awe/work
+ln -s /mnt/data/awe/logs
+
 EOSHELL_9
-echo "DONE installing, configuring"
+echo "DONE installing AWE"
 
 ### make sure AWE client is activated, in a screen, at boot
 sudo bash << EOSHELL_10
