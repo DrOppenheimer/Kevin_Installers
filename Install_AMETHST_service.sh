@@ -135,7 +135,7 @@ EOFSHELL3
 sudo bash << EOFSHELL4
 cd /home/ubuntu
 echo '#!/bin/sh' > start_AMETHST_service.sh
-echo "source /kb/deployment/user-env.sh; source /kb/deployment/user-env.sh; /kb/deployment/services/amethst_service/start_service" >>  start_AMETHST_service.sh
+echo "source /kb/deployment/user-env.sh; /kb/deployment/services/amethst_service/start_service" >>  start_AMETHST_service.sh
 chmod +x start_AMETHST_service.sh
 rm /etc/rc.local
 echo '#!/bin/sh -e' > /etc/rc.local

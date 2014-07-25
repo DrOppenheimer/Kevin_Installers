@@ -21,9 +21,9 @@ set -x # print each command before execution
 #ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
 #./Install_AMETHST_compute_node.sh
 ### To start nodes preconfigured with this script
-#vmAWE.pl --create=5 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.7-22-14" --nogroupcheck --greedy
-# Name: am_comp.7-22-14
-# ID :  29db25f2-d80d-4018-a9c3-7b68ba63d1f5
+#vmAWE.pl --create=5 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.7-24-14" --nogroupcheck --greedy
+# Name: am_comp.7-24-14
+# ID :  2e701c90-17aa-439b-9cd0-5f08df8b4935 
 ####################################################################################
 
 ####################################################################################
@@ -44,21 +44,16 @@ echo "DONE creating environment variables"
 ### move /tmp to /mnt/tmp (compute frequntly needs the space, exact amount depends on data)
 ####################################################################################
 ### First - create script that will check for proper /tmp confuguration and adjust at boot
-
+### Then reference a script (downloaded from git later) that will make sure tmp is in correct
+### location when this is saved as an image
 
 ### replace tmp on current instance - add acript to /etc/rc.local that will cause it to be replaced in VMs generated from snapshot
 sudo bash << EOFSHELL2
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
-chmod +x /home/ubuntu/change_tmp.sh 
 rm /etc/rc.local
 echo '#!/bin/sh -e' > /etc/rc.local
 echo "/home/ubuntu/Kevin_Installers/change_tmp.sh" >> /etc/rc.local
 EOFSHELL2
-
-#echo "moving /tmp"
-#sudo bash << EOFSHELL2
-#rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
-#EOFSHELL2
 echo "DONE moving /tmp"
 ####################################################################################
 
@@ -78,11 +73,11 @@ sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit
 ### update and upgrade
 apt-get -y install build-essential
 apt-get -y update
-apt-get -y upgrade 
+apt-get -y upgrade
+apt-get clean 
 ### install required packages
-apt-get -y install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev mongodb-server bzr make gcc mercurial python-qcli
-#apt-get -y clean
-#exit
+apt-get -y --force-yes install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev mongodb-server bzr make gcc mercurial python-qcli
+apt-get clean
 EOFSHELL3
 echo "DONE Installing dependencies for qiime_deploy and R"
 ####################################################################################
@@ -104,11 +99,11 @@ echo "DONE cloning the qiime-deploy and AMETHST git repos"
 ## This will also install cdbfasta & cdbyank, python and perl
 ## Uncomment the universe and multiverse repositories from /etc/apt/sources.list
 echo "Installing Qiime"
-sudo bash << EOFSHELL4
+#sudo bash << EOFSHELL4
 cd /home/ubuntu/
-sudo python ./qiime-deploy/qiime-deploy.py /home/ubuntu/qiime_software -f ./AMETHST/qiime_configuration/qiime.amethst.config --force-remove-failed-dirs
+sudo python ./qiime-deploy/qiime-deploy.py /home/ubuntu/qiime_software -f ./AMETHST/qiime_configuration/qiime.amethst.config --force-remove-failed-dirs --force-remove-previous-repos
 apt-get -y clean
-EOFSHELL4
+#EOFSHELL4
 echo "DONE Installing Qiime"
 ####################################################################################
 
@@ -141,13 +136,15 @@ echo "Installing R"
 sudo bash << EOFSHELL6
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
-#apt-get -y clean
+apt-get clean
 # Install R packages, including matR, along with their dependencies
+EOFSHELL6
 
+sudo bash << EOFSHELL7a
 cat >install_packages.r<<EOFSCRIPT1
 ## Simple R script to install packages not included as part of r-base
 # Install these packages for matR and AMETHST
-install.packages(c("KernSmooth", "codetools", "httr", "scatterplot3d", "rgl", "matlab", "ecodist", "gplots", "devtools"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
+install.packages(c("KernSmooth", "codetools", "httr", "scatterplot3d", "rgl", "matlab", "ecodist", "gplots", "devtools", "RJSONIO", "animation"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
 # Install these packages for Qiime
 install.packages(c("ape", "random-forest", "r-color-brewer", "klar", "vegan", "ecodist", "gtools", "optparse"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
 source("http://bioconductor.org/biocLite.R")
@@ -162,8 +159,8 @@ EOFSCRIPT1
 
 R --vanilla --slave < install_packages.r
 rm install_packages.r
+EOFSHELL7a
 
-EOFSHELL6
 echo "DONE installing R"
 ####################################################################################
 
@@ -182,22 +179,24 @@ echo "DONE installing perl packages"
 ####################################################################################
 
 ####################################################################################
-### Add AMETHST to Path (permanently)
+### Add AMETHST to Envrionment Path (permanently)
 echo "Adding AMETHST to the PATH"
 sudo bash << EOFSHELL8
 sudo bash 
 echo "export PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.profile
-source ~/.profile
+source /home/ubuntu/.profile
 #exit
 EOFSHELL8
+source /home/ubuntu/.profile
 echo "DONE adding AMETHST to the PATH (full PATH is in ~/.profile)"
+# PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" # original /etc/environment path
 ####################################################################################
 
 ####################################################################################
 ### Test AMETHST function
 ####################################################################################
 echo "TESTING AMETHST FUNCTIONALITY"
-source ~/.profile
+source /home/ubuntu/.profile
 test_amethst.sh
 echo "DONE testing AMETHST functionality"
 ####################################################################################
@@ -221,8 +220,10 @@ cat >awe_client_config<<EOF_AWE_CONFIG_SCRIPT
 site=$GOPATH/src/github.com/MG-RAST/AWE/site
 data=/mnt/data/awe/data
 logs=/mnt/data/awe/logs
+
 [Args]
 debuglevel=0
+
 [Client]
 totalworker=2
 workpath=/mnt/data/awe/work
@@ -241,16 +242,13 @@ password=
 domain=default-domain #e.g. megallan
 EOF_AWE_CONFIG_SCRIPT
 
-
-
-
-
 EOFSHELL9
 echo "DONE installing, configuring, - rebooting to start the AWE client"
 
 ### make sure AWE client is activated, in a screen, at boot
 sudo bash << EOFSHELL10
-echo "sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config" >> /etc/rc.local
+echo "source /home/ubuntu/.profile" >> /etc/rc.local
+echo "sudo screen -S awe_client -d -m bash -c "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/ubuntu/AMETHST;/home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config" >> ~/etc/rc.local
 chmod a=x /etc/rc.local
 sudo reboot
 EOFSHELL10
@@ -262,6 +260,21 @@ echo "DONE installing, configuring, and starting the AWE client"
 ### DONE
 echo "Install_AMETHST_compute_node.sh is DONE" 
 ####################################################################################
+
+
+# echo "sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config" >> ~/etc/rc.local
+
+# Wolfgang 7-24-14
+# workaround:
+
+# change
+# sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf
+# /home/ubuntu/awe_client_config
+
+# into (something like)
+# sudo screen -S awe_client -d -m bash -c "PATH=XXXX
+# /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+
 
 
 
