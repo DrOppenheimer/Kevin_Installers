@@ -6,6 +6,8 @@ set -x # print each command before execution
 
 #sudo bash << EOFSHELL # wrapper to run whole shell as root
 #EOFSHELL              #
+# configuration for the service is in /home/ubuntu/dev_container/modules/amethst_service/deploy.cfg
+
 
 ####################################################################################
 ### Start KBase-VM and deploy amethst module and its dependencies
@@ -17,7 +19,7 @@ set -x # print each command before execution
 ####################################################################################
 ### prepare tmp directory (only backend needs that!)
 ####################################################################################
-sudo bash << EOFSHELL1
+sudo bash << EOSHELL_1
 #sudo bash
 sudo rm -r /tmp 
 sudo mkdir -p /mnt/tmp/ 
@@ -25,13 +27,13 @@ sudo chmod 777 /mnt/tmp/
 #sudo ln -s /mnt/tmp/ /tmp
 sudo ln -s /mnt/tmp/ /tmp
 #exit
-EOFSHELL1
+EOSHELL_1
 ####################################################################################
 
 ####################################################################################
 ### copy the key from the existing vm 
 ############### A key like the one you get when you follow this procedure on a KB VM ###############
-sudo bash << EOFSHELL2
+sudo bash << EOSHELL_2
 #sudo bash
 ### get the key
 head -n 42 /home/ubuntu/cloudinit.sh > cloudinit_key.sh 
@@ -45,13 +47,13 @@ eval `ssh-agent -s`
 ssh-add ~/.ssh/id_rsa
 # ( on the kbase image the rsa key is stored in the cloudinit.sh )
 #exit
-EOFSHELL2
+EOSHELL_2
 ####################################################################################################
 
 ####################################################################################################
 ### Kitchen sink - everything else needed to get the amethst service deployed
 ####################################################################################################
-sudo bash << EOFSHELL3
+sudo bash << EOSHELL_3
 # install emacs and git
 apt-get install -y emacs git
 
@@ -128,21 +130,35 @@ cd /kb/deployment/services/amethst_service/
 echo "export PATH=/home/ubuntu/dev_container/modules/amethst_service/AMETHST/:$PATH;" >> /kb/deployment/user-env.sh
 source /kb/deployment/user-env.sh
 echo "source /kb/deployment/user-env.sh" >> ~/.bashrc
-EOFSHELL3
+EOSHELL_3
 
 
 # Force AMETHST service to start on boot
-sudo bash << EOFSHELL4
+sudo bash << EOSHELL_4
 cd /home/ubuntu
-echo '#!/bin/sh' > start_AMETHST_service.sh
-echo "source /kb/deployment/user-env.sh; /kb/deployment/services/amethst_service/start_service" >>  start_AMETHST_service.sh
+
+cat >/home/ubuntu/start_AMETHST_service.sh<<EOF_1
+#!/bin/sh -e 
+echo "starting amethst_service"
+. /kb/deployment/user-env.sh
+/kb/deployment/services/amethst_service/start_service &
+echo "amethst_service should be running"
+EOF_1
+
 chmod +x start_AMETHST_service.sh
+
 rm /etc/rc.local
-echo '#!/bin/sh -e' > /etc/rc.local
-echo "sudo screen -S awe_client -d -m /home/ubuntu/start_AMETHST_service.sh" >> /etc/rc.local
+
+cat >/etc/rc.local<<EOF_2
+#!/bin/sh -e 
+screen -S amethst_service -d -m /home/ubuntu/start_AMETHST_service.sh
+EOF_2
+
 chmod +x /etc/rc.local
+EOSHELL_4
+
 sudo reboot
-EOFSHELL4
+
 
 ####################################################################################################
 

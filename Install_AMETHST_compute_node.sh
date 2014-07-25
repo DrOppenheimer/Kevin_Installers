@@ -30,13 +30,17 @@ set -x # print each command before execution
 ### Create envrionment variables for key options
 ####################################################################################
 echo "Creating environment variables"
-sudo bash << EOFSHELL1
-cat >>/home/ubuntu/.profile<<EOF
+sudo bash << EOSHELL_1
+
+cat >>/home/ubuntu/.profile<<EOF_1
 export AWE_SERVER="http://140.221.84.145:8000"
 export AWE_CLIENT_GROUP="am_compute"
-EOF
+export HOSTNAME=${HOSTNAME}
+export GOPATH=/home/ubuntu/gopath
+EOF_1
+
 source /home/ubuntu/.profile
-EOFSHELL1
+EOSHELL_1
 echo "DONE creating environment variables"
 ####################################################################################
 
@@ -46,23 +50,28 @@ echo "DONE creating environment variables"
 ### First - create script that will check for proper /tmp confuguration and adjust at boot
 ### Then reference a script (downloaded from git later) that will make sure tmp is in correct
 ### location when this is saved as an image
-
 ### replace tmp on current instance - add acript to /etc/rc.local that will cause it to be replaced in VMs generated from snapshot
-sudo bash << EOFSHELL2
+sudo bash << EOSHELL_2
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
 rm /etc/rc.local
-echo '#!/bin/sh -e' > /etc/rc.local
-echo "/home/ubuntu/Kevin_Installers/change_tmp.sh" >> /etc/rc.local
-EOFSHELL2
+
+cat >>/etc/rc.local<<EOF_2
+#!/bin/sh -e
+source /home/ubuntu/.profile
+/home/ubuntu/Kevin_Installers/change_tmp.sh
+EOF_2
+
+chmod +x /etc/rc.local
+EOSHELL_2
 echo "DONE moving /tmp"
 ####################################################################################
 
 ####################################################################################
-### install dependencies for qiime_deploy and R
+### install dependencies for qiime_deploy and R # requires one manual interaction
 ####################################################################################
 echo "Installing dependencies for qiime_deploy and R"
 cd /home/ubuntu
-sudo bash << EOFSHELL3
+sudo bash << EOSHELL_3
 ### for R install later add cran release specific repos to /etc/apt/sources.list
 # echo deb http://cran.rstudio.com/bin/linux/ubuntu precise/ >> /etc/apt/sources.list # 12.04 # Only exist for LTS - check version with lsb_release -a
 echo deb http://cran.rstudio.com/bin/linux/ubuntu trusty/ >> /etc/apt/sources.list  # 14.04 # Only exist for LTS - check version with lsb_release -a
@@ -76,9 +85,9 @@ apt-get -y update
 apt-get -y upgrade
 apt-get clean 
 ### install required packages
-apt-get -y --force-yes install python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev mongodb-server bzr make gcc mercurial python-qcli
+apt-get -y --force-yes upgrade python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev mongodb-server bzr make gcc mercurial python-qcli
 apt-get clean
-EOFSHELL3
+EOSHELL_3
 echo "DONE Installing dependencies for qiime_deploy and R"
 ####################################################################################
 
@@ -91,6 +100,25 @@ git clone git://github.com/qiime/qiime-deploy.git
 git clone https://github.com/MG-RAST/AMETHST.git
 git clone https://github.com/DrOppenheimer/Kevin_Installers.git
 echo "DONE cloning the qiime-deploy and AMETHST git repos"
+####################################################################################
+
+####################################################################################
+### INSTALL cdbtools (Took care of the cdb failure above)
+####################################################################################
+echo "Installing cdbtools"
+sudo bash << EOSHELL_4
+mkdir /home/ubuntu/bin
+curl -L "http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files" > cdbfasta.tar.gz
+tar zxf cdbfasta.tar.gz
+pushd cdbfasta
+make
+cp cdbfasta /home/ubuntu/bin/.
+cp cdbyank /home/ubuntu/bin/.
+popd
+rm cdbfasta.tar.gz
+rm -rf /home/ubuntu/cdbfasta
+EOSHELL_4
+echo "DONE installing cdbtools"
 ####################################################################################
 
 ####################################################################################
@@ -108,40 +136,19 @@ echo "DONE Installing Qiime"
 ####################################################################################
 
 ####################################################################################
-### INSTALL cdbtools (Took care of the cdb failure above)
-####################################################################################
-# echo "Installing cdbtools"
-# sudo bash << EOFSHELL5
-# CURL="http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files"
-# CBASE="cdbfasta"
-# #echo "###### downloading $CBASE ######"
-# curl -L $CURL > $CBASE".tar.gz"
-# tar zxf $CBASE".tar.gz"
-# #echo "###### installing $CBASE ######"
-# pushd $CBASE
-# make
-# cp cdbfasta $IDIR/bin/.
-# cp cdbyank $IDIR/bin/.
-# popd
-# rm $CBASE".tar.gz"
-# rm -rf $CBASE
-# EOFSHELL5
-# echo "DONE installing cdbtools"
-####################################################################################
-
-####################################################################################
 ### INSTALL most current R on Ubuntu 14.04, install multiple non-base packages
 ####################################################################################
 echo "Installing R"
-sudo bash << EOFSHELL6
+sudo bash << EOSHELL_5
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
 apt-get clean
 # Install R packages, including matR, along with their dependencies
-EOFSHELL6
+EOSHELL_5
 
-sudo bash << EOFSHELL7a
-cat >install_packages.r<<EOFSCRIPT1
+sudo bash << EOSHELL_6
+
+cat >install_packages.r<<EOF_3
 ## Simple R script to install packages not included as part of r-base
 # Install these packages for matR and AMETHST
 install.packages(c("KernSmooth", "codetools", "httr", "scatterplot3d", "rgl", "matlab", "ecodist", "gplots", "devtools", "RJSONIO", "animation"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
@@ -155,11 +162,11 @@ install_github(repo="MG-RAST/matR", dependencies=FALSE)
 library(matR)
 dependencies()
 q()
-EOFSCRIPT1
+EOF_3
 
 R --vanilla --slave < install_packages.r
 rm install_packages.r
-EOFSHELL7a
+EOSHELL_6
 
 echo "DONE installing R"
 ####################################################################################
@@ -168,27 +175,27 @@ echo "DONE installing R"
 #### install perl packages
 ####################################################################################
 echo "Installing perl packages"
-sudo bash << EOFSHELL7
+sudo bash << EOSHELL_7
 #curl -L http://cpanmin.us | perl - --sudo App::cpanminus
 curl -L http://cpanmin.us | perl - --sudo Statistics::Descriptive
 #cpan -f App::cpanminus # ? if this is first run of cpan, it will have to configure, can't figure out how to force yes for its questions
 #                       # this may already be installed
 #cpanm Statistics::Descriptive
-EOFSHELL7
+EOSHELL_7
 echo "DONE installing perl packages"
 ####################################################################################
 
 ####################################################################################
 ### Add AMETHST to Envrionment Path (permanently)
 echo "Adding AMETHST to the PATH"
-sudo bash << EOFSHELL8
+sudo bash << EOSHELL_8
 sudo bash 
 echo "export PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.profile
 source /home/ubuntu/.profile
 #exit
-EOFSHELL8
+EOSHELL_8
 source /home/ubuntu/.profile
-echo "DONE adding AMETHST to the PATH (full PATH is in ~/.profile)"
+echo "DONE adding AMETHST to the PATH (full PATH is in /home/ubuntu/.profile)"
 # PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" # original /etc/environment path
 ####################################################################################
 
@@ -206,7 +213,7 @@ echo "DONE testing AMETHST functionality"
 ####################################################################################
 ### INSTALL
 echo "Installing, configuring, and starting the AWE client"
-sudo bash << EOFSHELL9
+sudo bash << EOSHELL_9
 cd /home/ubuntu
 curl http://www.mcs.anl.gov/~wtang/files/install_aweclient.sh > install_aweclient.sh
 chmod u=+x install_aweclient.sh
@@ -214,7 +221,7 @@ chmod u=+x install_aweclient.sh
 source /home/ubuntu/.profile
 ### CONFIGURE
 
-cat >awe_client_config<<EOF_AWE_CONFIG_SCRIPT
+cat >awe_client_config<<EOF_4
 [Directories]
 # See documentation for details of deploying Shock
 site=$GOPATH/src/github.com/MG-RAST/AWE/site
@@ -240,26 +247,37 @@ password=
 #for openstack client only
 #openstack_metadata_url=http://169.254.169.254/2009-04-04/meta-data
 domain=default-domain #e.g. megallan
-EOF_AWE_CONFIG_SCRIPT
+EOF_4
 
-EOFSHELL9
-echo "DONE installing, configuring, - rebooting to start the AWE client"
+EOSHELL_9
+echo "DONE installing, configuring"
 
 ### make sure AWE client is activated, in a screen, at boot
-sudo bash << EOFSHELL10
-echo "source /home/ubuntu/.profile" >> /etc/rc.local
-echo "sudo screen -S awe_client -d -m bash -c "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/ubuntu/AMETHST;/home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config" >> ~/etc/rc.local
-chmod a=x /etc/rc.local
-sudo reboot
-EOFSHELL10
+sudo bash << EOSHELL_10
 
-echo "DONE installing, configuring, and starting the AWE client"
+cat >/etc/rc.local<<EOF_5
+. /home/ubuntu/.profile"
+screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
+EOF_5
+
+EOSHELL_10
+
+sudo reboot
+
 ####################################################################################
 
 ####################################################################################
 ### DONE
-echo "Install_AMETHST_compute_node.sh is DONE" 
+
 ####################################################################################
+
+
+# screen -S awe_client -d -m bash -c "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/ubuntu/AMETHST;/home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+
+
+
+
+
 
 
 # echo "sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config" >> ~/etc/rc.local
@@ -410,6 +428,29 @@ echo "Install_AMETHST_compute_node.sh is DONE"
 # R --vanilla --slave < install_packages.r
 # rm install_packages.r
 ####################################################################################
+
+####################################################################################
+### INSTALL cdbtools (Took care of the cdb failure above)
+####################################################################################
+# echo "Installing cdbtools"
+# sudo bash << EOFSHELL5
+# CURL="http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files"
+# CBASE="cdbfasta"
+# #echo "###### downloading $CBASE ######"
+# curl -L $CURL > $CBASE".tar.gz"
+# tar zxf $CBASE".tar.gz"
+# #echo "###### installing $CBASE ######"
+# pushd $CBASE
+# make
+# cp cdbfasta $IDIR/bin/.
+# cp cdbyank $IDIR/bin/.
+# popd
+# rm $CBASE".tar.gz"
+# rm -rf $CBASE
+# EOFSHELL5
+# echo "DONE installing cdbtools"
+####################################################################################
+
 
 ####################################################################################
 ####################################################################################
