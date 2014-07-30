@@ -8,8 +8,8 @@ set -x # print each command before execution
 # It always breaks on installations of Qiime, but almost never at the same point.
 # Long term solution is probably to use Wolfgang's docker for Qiime
 # I have used this procedure to create this Magellan snapshot:
-# Name: am_comp.7-22-14
-# ID :  29db25f2-d80d-4018-a9c3-7b68ba63d1f5
+# Name: am_comp.7-25-14
+# ID :  36363fd6-969c-49f0-8e28-b6d5997b4b0d
                                                                                                                             
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
