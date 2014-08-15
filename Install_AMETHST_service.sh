@@ -8,6 +8,10 @@ set -x # print each command before execution
 #EOFSHELL              #
 # configuration for the service is in /home/ubuntu/dev_container/modules/amethst_service/deploy.cfg
 
+# Check to make sure that server is correct in
+# /kb/deployment
+
+
 
 ####################################################################################
 ### Start KBase-VM and deploy amethst module and its dependencies
@@ -101,6 +105,7 @@ cd /kb/dev_container/
 ./bootstrap /kb/runtime
 source /kb/dev_container/user-env.sh
 
+#### Deploy amethst service manually 
 cd /kb/dev_container/modules/amethst_service
 git pull
 make
@@ -108,9 +113,9 @@ make deploy-service
 source /kb/deployment/user-env.sh
 <here you might need to start service, not sure>
 make test-service
+###################################################
 
-
-Start AMETHST service manually
+#### Start AMETHST service manually
 # make sure that the amethst_service is running
 # start a screen session, then
 sudo bash
@@ -118,6 +123,7 @@ source /kb/deployment/user-env.sh
 cd /kb/deployment/services/amethst_service/
 ./start_service
 # exit (don’t kill) screen
+###################################################
 
 # This did not install the amethst_service (5-9-14)
 # how do I install the service “by hand” ?
@@ -137,24 +143,35 @@ EOSHELL_3
 sudo bash << EOSHELL_4
 cd /home/ubuntu
 
-cat >/home/ubuntu/start_AMETHST_service.sh<<EOF_1
+
+cat >/etc/rc.local<EOF_2
 #!/bin/sh -e 
 echo "starting amethst_service"
 . /kb/deployment/user-env.sh
 /kb/deployment/services/amethst_service/start_service &
-echo "amethst_service should be running"
-EOF_1
-
-chmod +x start_AMETHST_service.sh
-
-rm /etc/rc.local
-
-cat >/etc/rc.local<<EOF_2
-#!/bin/sh -e 
-screen -S amethst_service -d -m /home/ubuntu/start_AMETHST_service.sh
-EOF_2
-
+<EOF_2
 chmod +x /etc/rc.local
+
+# configuration for the service is in /home/ubuntu/dev_container/modules/amethst_service/deploy.cfg
+# cat >/home/ubuntu/start_AMETHST_service.sh<<EOF_1
+# #!/bin/sh -e 
+# echo "starting amethst_service"
+# . /kb/deployment/user-env.sh
+# /kb/deployment/services/amethst_service/start_service &
+# echo "amethst_service should be running"
+# EOF_1
+
+# chmod +x start_AMETHST_service.sh
+
+# rm /etc/rc.local
+
+# cat >/etc/rc.local<<EOF_2
+# #!/bin/sh -e 
+# sudo screen -S amethst_service -d -m /home/ubuntu/start_AMETHST_service.sh
+# EOF_2
+
+# chmod +x /etc/rc.local
+
 EOSHELL_4
 
 sudo reboot

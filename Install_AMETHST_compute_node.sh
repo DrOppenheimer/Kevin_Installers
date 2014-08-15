@@ -8,9 +8,8 @@ set -x # print each command before execution
 # It always breaks on installations of Qiime, but almost never at the same point.
 # Long term solution is probably to use Wolfgang's docker for Qiime
 # I have used this procedure to create this Magellan snapshot:
-# Name: am_comp.7-25-14
-# ID :  36363fd6-969c-49f0-8e28-b6d5997b4b0d
-                                                                                                                            
+# Name: am_comp.8-14-14
+# ID :  d0950e07-3a76-47cf-a10a-8e72569fa28a                                                                                                                         
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
 ### used this to spawn a 14.04 VM:
@@ -21,9 +20,13 @@ set -x # print each command before execution
 #ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
 #./Install_AMETHST_compute_node.sh
 ### To start nodes preconfigured with this script
-#vmAWE.pl --create=5 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.7-24-14" --nogroupcheck --greedy
-# Name: am_comp.7-24-14
-# ID :  2e701c90-17aa-439b-9cd0-5f08df8b4935 
+# vmAWE.pl --create=5 --flavor_name=i2.2xlarge.sd --groupname=am_compute --key_name=kevin_share --image_name="am_comp.8-14-14" --nogroupcheck --greedy
+# vmAWE.pl --create=5 # if other options are specified in .bulkvm
+# Name: am_comp.8-14-14
+# ID: d0950e07-3a76-47cf-a10a-8e72569fa28a 
+# also have image for service machine
+# Name: am_service.8-14-14
+# ID: e817940e-127d-4247-b66a-51bfd1e5d9b0
 ####################################################################################
 
 ####################################################################################
@@ -187,10 +190,11 @@ echo "DONE installing perl packages"
 
 ####################################################################################
 ### Add AMETHST to Envrionment Path (permanently)
+####################################################################################
 echo "Adding AMETHST to the PATH"
 sudo bash << EOSHELL_8
 sudo bash 
-echo "export PATH=$PATH:/home/ubuntu/AMETHST" >> /home/ubuntu/.profile
+echo "export \"PATH=$PATH:/home/ubuntu/AMETHST"\" >> /home/ubuntu/.profile
 source /home/ubuntu/.profile
 #exit
 EOSHELL_8
@@ -200,7 +204,7 @@ echo "DONE adding AMETHST to the PATH (full PATH is in /home/ubuntu/.profile)"
 ####################################################################################
 
 ####################################################################################
-### Test AMETHST function
+### Test AMETHST functionality
 ####################################################################################
 echo "TESTING AMETHST FUNCTIONALITY"
 source /home/ubuntu/.profile
@@ -258,22 +262,74 @@ ln -s /mnt/data/awe/logs
 EOSHELL_9
 echo "DONE installing AWE"
 
+####################################################################################
 ### make sure AWE client is activated, in a screen, at boot
+####################################################################################
 sudo bash << EOSHELL_10
 
 cat >/etc/rc.local<<EOF_5
 . /home/ubuntu/.profile"
-screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
+sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/please_work_path1; source /home/ubuntu/.profile; echo \$PATH > /home/ubuntu/please_work_path2; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
+mkdir -p /mnt/data/awe/awe_data
+mkdir -p /mnt/data/awe/work
+mkdir -p /mnt/data/awe/logs
+ln -s /mnt/data/awe/awe_data
+ln -s /mnt/data/awe/work
+ln -s /mnt/data/awe/logs
 EOF_5
 
 EOSHELL_10
+####################################################################################
 
+####################################################################################
+### reboot
 sudo reboot
+####################################################################################
 
+
+
+####################################################################################
+####################################################################################
+####################################################################################
+### Just notes from here on
+# 140.221.84.145
+# 140.221.84.148
+# http://kbase.us/services/awemonitor.html
 ####################################################################################
 
 ####################################################################################
 ### DONE
+
+# THis does not work
+# sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
+
+
+
+# #!/bin/sh -e
+# . /home/ubuntu/.profile
+# echo $PATH > /home/ubuntu/my_path
+# /home/ubuntu/Kevin_Installers/change_tmp.sh
+# ##sudo -E screen -l -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
+# ##sudo -E screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
+# sudo screen -S test -d -m /home/ubuntu/bin/print_path.sh
+# #sudo screen -S bash -c "echo \$PATH > please_work_path; awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+# #sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
+# # sudo -i
+# # echo $PATH >> /home/ubuntu/my_path 
+
+### /home/ubuntu/bin/print_path.sh
+##!/bin/bash                                                                                                                                                                      
+#echo $PATH > /home/ubuntu/my_path.screen
+
+
+
+
+
+
+
+
+
 
 ####################################################################################
 
