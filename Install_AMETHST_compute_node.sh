@@ -274,13 +274,12 @@ cat >>/etc/rc.local<<EOF_5
 
 . /home/ubuntu/.profile"
 sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/please_work_path1; source /home/ubuntu/.profile; echo \$PATH > /home/ubuntu/please_work_path2; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
-sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
-mkdir -p /mnt/data/awe/awe_data
-mkdir -p /mnt/data/awe/work
-mkdir -p /mnt/data/awe/logs
-ln -s /mnt/data/awe/awe_data
-ln -s /mnt/data/awe/work
-ln -s /mnt/data/awe/logs
+sudo mkdir -p /mnt/data/awe/awe_data
+sudo mkdir -p /mnt/data/awe/work
+sudo mkdir -p /mnt/data/awe/logs
+sudo ln -s /mnt/data/awe/awe_data
+sudo ln -s /mnt/data/awe/work
+sudo ln -s /mnt/data/awe/logs
 EOF_5
 
 EOSHELL_10
