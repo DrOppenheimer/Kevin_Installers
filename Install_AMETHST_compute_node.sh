@@ -277,9 +277,9 @@ sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/please
 sudo mkdir -p /mnt/data/awe/awe_data
 sudo mkdir -p /mnt/data/awe/work
 sudo mkdir -p /mnt/data/awe/logs
-sudo ln -s /mnt/data/awe/awe_data
-sudo ln -s /mnt/data/awe/work
-sudo ln -s /mnt/data/awe/logs
+#sudo ln -s /mnt/data/awe/awe_data
+#sudo ln -s /mnt/data/awe/work
+#sudo ln -s /mnt/data/awe/logs
 EOF_5
 
 EOSHELL_10
