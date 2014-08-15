@@ -36,6 +36,7 @@ echo "Creating environment variables"
 sudo bash << EOSHELL_1
 
 cat >>/home/ubuntu/.profile<<EOF_1
+
 export AWE_SERVER="http://140.221.84.145:8000"
 export AWE_CLIENT_GROUP="am_compute"
 export HOSTNAME=${HOSTNAME}
@@ -58,7 +59,7 @@ sudo bash << EOSHELL_2
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
 rm /etc/rc.local
 
-cat >>/etc/rc.local<<EOF_2
+cat >/etc/rc.local<<EOF_2
 #!/bin/sh -e
 source /home/ubuntu/.profile
 /home/ubuntu/Kevin_Installers/change_tmp.sh
@@ -127,6 +128,8 @@ echo "DONE installing cdbtools"
 ####################################################################################
 ### INSTALL QIIME ### also see https://github.com/qiime/qiime-deploy 4-23-14
 ####################################################################################
+## NOTE: Qiime isntallation frequently breaks, and you have to continue by hand 
+## does not break in a consistent way
 ## This will also install cdbfasta & cdbyank, python and perl
 ## Uncomment the universe and multiverse repositories from /etc/apt/sources.list
 echo "Installing Qiime"
@@ -267,7 +270,8 @@ echo "DONE installing AWE"
 ####################################################################################
 sudo bash << EOSHELL_10
 
-cat >/etc/rc.local<<EOF_5
+cat >>/etc/rc.local<<EOF_5
+
 . /home/ubuntu/.profile"
 sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/please_work_path1; source /home/ubuntu/.profile; echo \$PATH > /home/ubuntu/please_work_path2; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
 sudo screen -S awe_client -d -m /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config
@@ -280,10 +284,7 @@ ln -s /mnt/data/awe/logs
 EOF_5
 
 EOSHELL_10
-####################################################################################
 
-####################################################################################
-### reboot
 sudo reboot
 ####################################################################################
 

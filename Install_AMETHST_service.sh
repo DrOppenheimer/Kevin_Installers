@@ -11,6 +11,8 @@ set -x # print each command before execution
 # Check to make sure that server is correct in
 # /kb/deployment
 
+# location of AMETHST binary
+# /home/ubuntu/dev_container/modules/amethst_service/AMETHST
 
 
 ####################################################################################
@@ -23,7 +25,7 @@ set -x # print each command before execution
 ####################################################################################
 ### prepare tmp directory (only backend needs that!)
 ####################################################################################
-sudo bash << EOSHELL_1
+sudo bash << EOFSHELL_1
 #sudo bash
 sudo rm -r /tmp 
 sudo mkdir -p /mnt/tmp/ 
@@ -31,13 +33,13 @@ sudo chmod 777 /mnt/tmp/
 #sudo ln -s /mnt/tmp/ /tmp
 sudo ln -s /mnt/tmp/ /tmp
 #exit
-EOSHELL_1
+EOFSHELL_1
 ####################################################################################
 
 ####################################################################################
 ### copy the key from the existing vm 
 ############### A key like the one you get when you follow this procedure on a KB VM ###############
-sudo bash << EOSHELL_2
+sudo bash << EOFSHELL_2
 #sudo bash
 ### get the key
 head -n 42 /home/ubuntu/cloudinit.sh > cloudinit_key.sh 
@@ -51,13 +53,13 @@ eval `ssh-agent -s`
 ssh-add ~/.ssh/id_rsa
 # ( on the kbase image the rsa key is stored in the cloudinit.sh )
 #exit
-EOSHELL_2
+EOFSHELL_2
 ####################################################################################################
 
 ####################################################################################################
-### Kitchen sink - everything else needed to get the amethst service deployed
+### KBase bootstratp
 ####################################################################################################
-sudo bash << EOSHELL_3
+sudo bash << EOFSHELL_3
 # install emacs and git
 apt-get install -y emacs git
 
@@ -85,7 +87,7 @@ git clone https://github.com/kbase/kbapi_common.git
 git clone kbase@git.kbase.us:auth.git # needs the key from above
 git clone kbase@git.kbase.us:jars.git # needs the key from above
 
-# deploy services 
+# deploy all installed KBase services 
 cd /home/ubuntu/dev_container
 # source /kb/runtime/env/java-build-runtime.env 
 ./bootstrap /kb/runtime
@@ -95,62 +97,52 @@ make deploy
 
 # source environment
 source /kb/deployment/user-env.sh
+EOFSHELL_3
+####################################################################################################
 
-
-###################################################
-###################################################
-Deploy and start service
-sudo bash
+####################################################################################################
+### Deploy and start AMETHST service (is not currently part of the bottstrap)
+####################################################################################################
+sudo bash << EOFSHELL_4
 cd /kb/dev_container/
 ./bootstrap /kb/runtime
 source /kb/dev_container/user-env.sh
-
-#### Deploy amethst service manually 
-cd /kb/dev_container/modules/amethst_service
-git pull
-make
-make deploy-service
-source /kb/deployment/user-env.sh
-<here you might need to start service, not sure>
-make test-service
-###################################################
-
-#### Start AMETHST service manually
-# make sure that the amethst_service is running
-# start a screen session, then
-sudo bash
 source /kb/deployment/user-env.sh
 cd /kb/deployment/services/amethst_service/
-./start_service
-# exit (don’t kill) screen
-###################################################
-
-# This did not install the amethst_service (5-9-14)
-# how do I install the service “by hand” ?
-###################################################
-###################################################
-
-# location of AMETHST binary
-# /home/ubuntu/dev_container/modules/amethst_service/AMETHST
+./start_service &
 # add AMETHST directory to path
 echo "export PATH=/home/ubuntu/dev_container/modules/amethst_service/AMETHST/:$PATH;" >> /kb/deployment/user-env.sh
 source /kb/deployment/user-env.sh
 echo "source /kb/deployment/user-env.sh" >> ~/.bashrc
-EOSHELL_3
+EOFSHELL_4
+####################################################################################################
 
-
-# Force AMETHST service to start on boot
-sudo bash << EOSHELL_4
+####################################################################################################
+### Force AMETHST service to start on boot
+####################################################################################################
+sudo bash << EOFSHELL_5
 cd /home/ubuntu
-
 
 cat >/etc/rc.local<EOF_2
 #!/bin/sh -e 
-echo "starting amethst_service"
 . /kb/deployment/user-env.sh
 /kb/deployment/services/amethst_service/start_service &
 <EOF_2
 chmod +x /etc/rc.local
+
+EOFSHELL_5
+
+sudo reboot
+####################################################################################################
+
+
+####################################################################################################
+####################################################################################################
+####################################################################################################
+### Just notes from here on
+####################################################################################################
+####################################################################################################
+####################################################################################################
 
 # configuration for the service is in /home/ubuntu/dev_container/modules/amethst_service/deploy.cfg
 # cat >/home/ubuntu/start_AMETHST_service.sh<<EOF_1
@@ -170,17 +162,25 @@ chmod +x /etc/rc.local
 # sudo screen -S amethst_service -d -m /home/ubuntu/start_AMETHST_service.sh
 # EOF_2
 
-# chmod +x /etc/rc.local
 
-EOSHELL_4
+# #### Deploy amethst service manually 
+# cd /kb/dev_container/modules/amethst_service
+# git pull
+# make
+# make deploy-service
+# source /kb/deployment/user-env.sh
+# #<here you might need to start service, not sure>
+# make test-service
+# ###################################################
 
-sudo reboot
-
-
-####################################################################################################
-
-
-
+# #### Start AMETHST service manually
+# # make sure that the amethst_service is running
+# # start a screen session, then
+# sudo bash
+# cd /kb/deployment/services/amethst_service/
+# ./start_service &
+# # exit (don’t kill) screen
+# ###################################################
 
 
 # Deploy client
