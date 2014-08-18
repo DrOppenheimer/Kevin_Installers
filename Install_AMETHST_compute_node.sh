@@ -272,7 +272,7 @@ sudo bash << EOSHELL_10
 
 cat >>/etc/rc.local<<EOF_5
 
-. /home/ubuntu/.profile"
+. /home/ubuntu/.profile
 sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/please_work_path1; source /home/ubuntu/.profile; source /home/ubuntu/AMETHST/installation/AMETHST_AWE_env.txt; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
 sudo mkdir -p /mnt/data/awe/awe_data
 sudo mkdir -p /mnt/data/awe/work
