@@ -30,14 +30,14 @@ set -x # print each command before execution
 ####################################################################################
 
 ####################################################################################
-### Create envrionment variables for key options
+### Create environment variables for key options
 ####################################################################################
 echo "Creating environment variables"
 sudo bash << EOSHELL_1
 
 cat >>/home/ubuntu/.profile<<EOF_1
 
-export AWE_SERVER="http://140.221.84.145:8000"
+export AWE_SERVER="http://140.221.84.148:8000"
 export AWE_CLIENT_GROUP="am_compute"
 export HOSTNAME=${HOSTNAME}
 export GOPATH=/home/ubuntu/gopath
@@ -266,7 +266,7 @@ EOSHELL_9
 echo "DONE installing AWE"
 
 ####################################################################################
-### make sure AWE client is activated, in a screen, at boot
+### make sure AWE client is activated, in a screen, at boot - gets additional configuration info if needed from file already in the AMETHST git repo
 ####################################################################################
 sudo bash << EOSHELL_10
 
@@ -277,12 +277,22 @@ sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/please
 sudo mkdir -p /mnt/data/awe/awe_data
 sudo mkdir -p /mnt/data/awe/work
 sudo mkdir -p /mnt/data/awe/logs
+sudo source /home/ubutu/AMETHST/installation/config
 #sudo ln -s /mnt/data/awe/awe_data
 #sudo ln -s /mnt/data/awe/work
 #sudo ln -s /mnt/data/awe/logs
 EOF_5
 
 EOSHELL_10
+####################################################################################
+
+####################################################################################
+### source an updated configuration, already contained in AMETHST repo
+####################################################################################
+
+####################################################################################
+
+
 
 sudo reboot
 ####################################################################################
