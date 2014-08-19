@@ -8,8 +8,8 @@ set -x # print each command before execution
 # It always breaks on installations of Qiime, but almost never at the same point.
 # Long term solution is probably to use Wolfgang's docker for Qiime
 # I have used this procedure to create this Magellan snapshot:
-# Name: am_comp.8-14-14
-# ID :  d0950e07-3a76-47cf-a10a-8e72569fa28a                                                                                                                         
+# Name: am_comp.8-18-14
+# ID :  c16cd63e-f5e9-43ad-afa9-bce2f096fe06                                                                                                                         
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
 ### used this to spawn a 14.04 VM:
@@ -20,8 +20,13 @@ set -x # print each command before execution
 #ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
 #./Install_AMETHST_compute_node.sh
 ### To start nodes preconfigured with this script
-# vmAWE.pl --create=5 --flavor_name=i2.2xlarge.sd --groupname=am_compute --key_name=kevin_share --image_name="am_comp.8-14-14" --nogroupcheck --greedy
+# NEW MAGELLAN (Havvanah)
+# vmAWE.pl --create=5 --flavor_name=i2.2xlarge.sd --groupname=am_compute --key_name=kevin_share --image_name="am_comp.8-18-14" --nogroupcheck --greedy
 # vmAWE.pl --create=5 # if other options are specified in .bulkvm
+# OLD MAGELLAN (NOVUS)
+# vmAWE.pl --create=5 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.8-18-14" --nogroupcheck --greedy
+# vmAWE.pl --create=5 # if other options are specified in .bulkvm
+
 # Name: am_comp.8-14-14
 # ID: d0950e07-3a76-47cf-a10a-8e72569fa28a 
 # also have image for service machine
