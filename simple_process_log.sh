@@ -32,8 +32,9 @@ echo "     $MY_LOG"
 echo
 
 ENTRY_COUNTER=0
-echo $MY_HEADER > $MY_LOG
+#echo $MY_HEADER > $MY_LOG
 while :; do 
+    echo $MY_HEADER >> $MY_LOG
     top -n 1 -b -u $MY_USER | grep $MY_PID | awk '{print $1," ",$9," ",$10," ",$11," ",$12}'>> $MY_LOG
     ENTRY_COUNTER=$((ENTRY_COUNTER+1))
     echo "     created log entry ( "$ENTRY_COUNTER" )" 
