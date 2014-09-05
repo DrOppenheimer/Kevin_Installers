@@ -13,12 +13,12 @@ set -x # print each command before execution
 ####################################################################################
 ### Script to create an AMETHST compute node from 14.04 bare
 ### used this to spawn a 14.04 VM:
-#vmAWE.pl --create=1 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="Ubuntu Trusty 14.04" --namelist=yamato
+# vmAWE.pl --create=1 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="Ubuntu Trusty 14.04" --namelist=yamato
 ### Then run these commands to download this script and run it
-#sudo apt-get -y install git
-#git clone https://github.com/DrOppenheimer/Kevin_Installers.git
-#ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
-#./Install_AMETHST_compute_node.sh
+# sudo apt-get -y install git
+# git clone https://github.com/DrOppenheimer/Kevin_Installers.git
+# ln -s ./Kevin_Installers/Install_AMETHST_compute_node.sh
+# ./Install_AMETHST_compute_node.sh
 ### To start nodes preconfigured with this script
 # NEW MAGELLAN (Havvanah)
 # vmAWE.pl --create=5 --flavor_name=i2.2xlarge.sd --groupname=am_compute --key_name=kevin_share --image_name="am_comp.8-18-14" --nogroupcheck --greedy
@@ -37,15 +37,27 @@ set -x # print each command before execution
 ####################################################################################
 ### Create environment variables for key options
 ####################################################################################
+
+
+
+
+
 echo "Creating environment variables"
 sudo bash << EOSHELL_1
 
 cat >>/home/ubuntu/.profile<<EOF_1
 
+#export AWE_SERVER="http://kbase.us/services/awe/"
 export AWE_SERVER="http://140.221.84.148:8000"
-export AWE_CLIENT_GROUP="am_compute"
+export AWE_CLIENT_GROUP="amethst"
 export HOSTNAME=${HOSTNAME}
 export GOPATH=/home/ubuntu/gopath
+#export AWE_DATA="/mnt/data/awe/data"
+export AWE_DATA="/data/awe/data"
+#export AWE_WORK="/mnt/data/awe/work"
+export AWE_WORK="/data/awe/work"
+#export AWE_LOGS="/mnt/data/awe/logs"
+export AWE_LOGS="/data/awe/logs"
 EOF_1
 
 source /home/ubuntu/.profile
@@ -60,13 +72,14 @@ echo "DONE creating environment variables"
 ### Then reference a script (downloaded from git later) that will make sure tmp is in correct
 ### location when this is saved as an image
 ### replace tmp on current instance - add acript to /etc/rc.local that will cause it to be replaced in VMs generated from snapshot
+### DON'T DO THIS FOR THE NEW MAGELLAN VMS!
 sudo bash << EOSHELL_2
 rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
 rm /etc/rc.local
 
 cat >/etc/rc.local<<EOF_2
 #!/bin/sh -e
-source /home/ubuntu/.profile
+. /home/ubuntu/.profile
 /home/ubuntu/Kevin_Installers/change_tmp.sh
 EOF_2
 
@@ -98,6 +111,7 @@ apt-get -y --force-yes upgrade python-dev libncurses5-dev libssl-dev libzmq-dev 
 apt-get clean
 EOSHELL_3
 echo "DONE Installing dependencies for qiime_deploy and R"
+# sudo dpkg --configure -a # if you run tin trouble
 ####################################################################################
 
 ####################################################################################
@@ -116,16 +130,17 @@ echo "DONE cloning the qiime-deploy and AMETHST git repos"
 ####################################################################################
 echo "Installing cdbtools"
 sudo bash << EOSHELL_4
-mkdir /home/ubuntu/bin
-curl -L "http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files" > cdbfasta.tar.gz
-tar zxf cdbfasta.tar.gz
-pushd cdbfasta
-make
-cp cdbfasta /home/ubuntu/bin/.
-cp cdbyank /home/ubuntu/bin/.
-popd
-rm cdbfasta.tar.gz
-rm -rf /home/ubuntu/cdbfasta
+apt-get install cdbfasta
+# mkdir /home/ubuntu/bin
+# curl -L "http://sourceforge.net/projects/cdbfasta/files/latest/download?source=files" > cdbfasta.tar.gz
+# tar zxf cdbfasta.tar.gz
+# pushd cdbfasta
+# make
+# cp cdbfasta /home/ubuntu/bin/.
+# cp cdbyank /home/ubuntu/bin/.
+# popd
+# rm cdbfasta.tar.gz
+# rm -rf /home/ubuntu/cdbfasta
 EOSHELL_4
 echo "DONE installing cdbtools"
 ####################################################################################
@@ -233,7 +248,78 @@ chmod u=+x install_aweclient.sh
 source /home/ubuntu/.profile
 ### CONFIGURE
 
-cat >awe_client_config<<EOF_4
+# config template from https://github.com/MG-RAST/AWE/blob/master/templates/awec.cfg.template
+cat >/home/ubuntu/awe_client_config<<EOF_4
+[Directories]
+# See documentation for details of deploying Shock
+site=$GOPATH/src/github.com/MG-RAST/AWE/site
+data=${AWE_DATA}
+logs=${AWE_LOGS}
+
+[Args]
+debuglevel=0
+
+[Client]
+workpath=${AWE_WORK}
+
+supported_apps=*
+app_path=/home/ubuntu/apps/bin
+serverurl=${AWE_SERVER}
+name=${HOSTNAME}
+group=${AWE_CLIENT_GROUP}
+auto_clean_dir=true
+worker_overlap=false
+print_app_msg=true
+clientgroup_token=${AWE_CLIENT_GROUP_TOKEN}
+pre_work_script=
+# arguments for pre-workunit script execution should be comma-delimited
+pre_work_script_args=
+#for openstack client only
+openstack_metadata_url=http://169.254.169.254/2009-04-04/meta-data
+domain=default-domain #e.g. megallan
+EOF_4
+
+# create some easy links for awe data, log and work folders
+cd /home/ubuntu
+ln -s ${AWE_DATA}
+ln -s ${AWE_WORK}
+ln -s ${AWE_LOGS}
+
+EOSHELL_9
+echo "DONE installing AWE"
+
+####################################################################################
+### make sure AWE client is activated, in a screen, at boot - gets additional configuration info if needed from file already in the AMETHST git repo
+####################################################################################
+sudo bash << EOSHELL_10
+
+cat >>/etc/rc.local<<EOF_5
+. /home/ubuntu/.profile
+#echo $PATH > /home/ubuntu/my_path
+/home/ubuntu/Kevin_Installers/change_tmp.sh
+sudo screen -S awe_client -d -m bash -c "source /home/ubuntu/.profile; echo \$PATH > /home/ubuntu/awe_client_screen.path_log.txt; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+sudo mkdir -p ${AWE_DATA}
+sudo mkdir -p ${AWE_WORK}
+sudo mkdir -p ${AWE_LOGS}
+EOF_5
+
+
+EOSHELL_10
+####################################################################################
+sudo reboot
+####################################################################################
+
+# DONE JUST NOTES FROM HERE ON
+# DONE JUST NOTES FROM HERE ON
+# DONE JUST NOTES FROM HERE ON
+# DONE JUST NOTES FROM HERE ON
+# DONE JUST NOTES FROM HERE ON
+
+
+####################################################################################
+####################################################################################
+###### Old config template
+cat >/home/ubuntu/awe_client_config<<EOF_4
 [Directories]
 # See documentation for details of deploying Shock
 site=$GOPATH/src/github.com/MG-RAST/AWE/site
@@ -260,41 +346,37 @@ password=
 #openstack_metadata_url=http://169.254.169.254/2009-04-04/meta-data
 domain=default-domain #e.g. megallan
 EOF_4
-
-# create some easy links for awe data, log and work folders
-cd /home/ubuntu
-ln -s /mnt/data/awe/awe_data
-ln -s /mnt/data/awe/work
-ln -s /mnt/data/awe/logs
-
-EOSHELL_9
-echo "DONE installing AWE"
-
 ####################################################################################
-### make sure AWE client is activated, in a screen, at boot - gets additional configuration info if needed from file already in the AMETHST git repo
 ####################################################################################
+
+
+
+
+
+
+
+
+# Try it this way?
+
 sudo bash << EOSHELL_10
 
-cat >>/etc/rc.local<<EOF_5
+cat >>/home/ubuntu/start_awe.sh<<EOF_5
+source /home/ubuntu/.profile;
+source /home/ubuntu/AMETHST/installation/AMETHST_AWE_env.txt;
+echo $PATH > /home/ubuntu/awe_client.screen.path_log.txt;
+/home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config;
+EOF_5
 
-. /home/ubuntu/.profile
-sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/please_work_path1; source /home/ubuntu/.profile; source /home/ubuntu/AMETHST/installation/AMETHST_AWE_env.txt; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+chmod +x /home/ubuntu/start_awe.sh
+
+cat >>/etc/rc.local<<EOF_6
+sudo screen -S awe_client -d -m bash -c "/home/ubuntu/start_awe.sh"
 sudo mkdir -p /mnt/data/awe/awe_data
 sudo mkdir -p /mnt/data/awe/work
 sudo mkdir -p /mnt/data/awe/logs
-#sudo ln -s /mnt/data/awe/awe_data
-#sudo ln -s /mnt/data/awe/work
-#sudo ln -s /mnt/data/awe/logs
-EOF_5
+EOF_6
 
 EOSHELL_10
-####################################################################################
-
-
-
-sudo reboot
-####################################################################################
-
 
 
 ####################################################################################
@@ -305,6 +387,96 @@ sudo reboot
 # 140.221.84.148
 # http://kbase.us/services/awemonitor.html
 ####################################################################################
+
+cat >>/etc/rc.local<<EOF_5
+. /home/ubuntu/.profile
+#echo $PATH > /home/ubuntu/my_path
+/home/ubuntu/Kevin_Installers/change_tmp.sh
+sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/amethst_screen_path; source /home/ubuntu/.profile; source /home/ubuntu/AMETHST/installation/AMETHST_AWE_env.txt; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+sudo mkdir -p /mnt/data/awe/awe_data
+sudo mkdir -p /mnt/data/awe/work
+sudo mkdir -p /mnt/data/awe/logs
+EOF_5
+
+EOSHELL_10
+
+############################################################################################################################################################################################################
+############################################################################################################################################################################################################
+# ORIGINAL WORKING SOLUTION ( /etc/rc.local/ )
+# ORIGINAL WORKING SOLUTION
+# ORIGINAL WORKING SOLUTION
+
+#!/bin/sh -e                                                                                                                                                                  
+. /home/ubuntu/.profile
+#echo $PATH > /home/ubuntu/my_path
+/home/ubuntu/Kevin_Installers/change_tmp.sh
+sudo screen -S awe_client -d -m bash -c "date; echo \$PATH > /home/ubuntu/awe_screen_pathlog1.txt; source /home/ubuntu/.profile; source /home/ubuntu/AMETHST/installation/AMETHST_AWE_env.txt; echo \$PATH > /home/ubuntu/awe_screen_pathlog2.txt; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+sudo mkdir -p /mnt/data/awe/awe_data
+sudo mkdir -p /mnt/data/awe/work
+sudo mkdir -p /mnt/data/awe/logs
+############################################################################################################################################################################################################
+############################################################################################################################################################################################################
+
+
+
+########################################################################################################################################################################################################################################################################################################################################################################################################################
+
+
+
+################################################################
+# new group name and key
+
+#
+
+
+
+
+
+
+
+
+
+. /home/ubuntu/.profile 
+. /home/ubuntu/AMETHST/installation/AMETHST_AWE_env.txt 
+sudo /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config &
+echo $PATH > /home/ubuntu/path_log.txt
+printenv > /home/ubuntu/env_log.txt"
+sudo mkdir -p /mnt/data/awe/awe_data
+sudo mkdir -p /mnt/data/awe/work
+sudo mkdir -p /mnt/data/awe/logs
+#sudo ln -s /mnt/data/awe/awe_data
+#sudo ln -s /mnt/data/awe/work
+#sudo ln -s /mnt/data/awe/logs
+EOF_5
+
+EOSHELL_10
+
+
+
+
+
+
+cd /home/ubuntu/AMETHST
+sudo git pull
+cd /home/ubuntu/Kevin_Installers
+sudo git pull
+cd ~
+. /home/ubuntu/.profile
+. /home/ubuntu/AMETHST/installation/AMETHST_AWE_env.txt
+sudo /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config &
+echo $PATH > /home/ubuntu/screen_path_log.txt
+printenv > /home/ubuntu/screen_env_log.txt
+sudo mkdir -p /mnt/data/awe/awe_data
+sudo mkdir -p /mnt/data/awe/work
+sudo mkdir -p /mnt/data/awe/logs
+echo "test" > /home/ubuntu/some_file.txt
+#sudo ln -s /mnt/data/awe/awe_data
+#sudo ln -s /mnt/data/awe/work
+#sudo ln -s /mnt/data/awe/logs
+
+
+
+
 
 ####################################################################################
 ### DONE

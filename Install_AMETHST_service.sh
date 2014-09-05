@@ -60,18 +60,18 @@ EOFSHELL_2
 ### KBase bootstratp
 ####################################################################################################
 sudo bash << EOFSHELL_3
-# install emacs and git
-apt-get install -y emacs git
+## install emacs and git
+#apt-get install -y emacs git
 
 # clone the bootstrap repo
 cd /home/ubuntu
 git clone kbase@git.kbase.us:bootstrap
 
-# create directory for runtime
-mkdir -p /kb/runtime
+## create directory for runtime
+#mkdir -p /kb/runtime
 
 # add it as env variable
-target=/kb/runtime
+export target="/kb/runtime"
 
 # create and populate dev_container
 cd /home/ubuntu
@@ -145,6 +145,10 @@ sudo reboot
 ####################################################################################################
 
 # configuration for the service is in /home/ubuntu/dev_container/modules/amethst_service/deploy.cfg
+# Update it by updating repo:
+# https://github.com/kbase/amethst_service
+
+
 # cat >/home/ubuntu/start_AMETHST_service.sh<<EOF_1
 # #!/bin/sh -e 
 # echo "starting amethst_service"
