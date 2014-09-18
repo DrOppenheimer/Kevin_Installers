@@ -37,18 +37,14 @@ set -x # print each command before execution
 ####################################################################################
 ### Create environment variables for key options
 ####################################################################################
-
-
-
-
-
 echo "Creating environment variables"
 sudo bash << EOSHELL_1
 
 cat >>/home/ubuntu/.profile<<EOF_1
 
-#export AWE_SERVER="http://kbase.us/services/awe/"
-export AWE_SERVER="http://140.221.84.148:8000"
+#export AWE_SERVER="http://kbase.us/services/awe/" # KBase production
+#export AWE_SERVER="http://140.221.84.148:8000" # KBase Dev
+export AWE_SERVER="http://40.221.84.148:8000" # MG, Travis
 export AWE_CLIENT_GROUP="amethst"
 export HOSTNAME=${HOSTNAME}
 export GOPATH=/home/ubuntu/gopath
@@ -66,6 +62,21 @@ echo "DONE creating environment variables"
 ####################################################################################
 
 ####################################################################################
+### Prep /etc/rc.local
+####################################################################################
+sudo bash << EOSHELL_2
+
+rm /etc/rc.local
+
+cat >/etc/rc.local<<EOF_2
+#!/bin/sh -e
+. /home/ubuntu/.profile
+EOF_2
+chmod +x /etc/rc.local
+EOSHELL_2
+####################################################################################
+
+####################################################################################
 ### move /tmp to /mnt/tmp (compute frequntly needs the space, exact amount depends on data)
 ####################################################################################
 ### First - create script that will check for proper /tmp confuguration and adjust at boot
@@ -73,19 +84,13 @@ echo "DONE creating environment variables"
 ### location when this is saved as an image
 ### replace tmp on current instance - add acript to /etc/rc.local that will cause it to be replaced in VMs generated from snapshot
 ### DON'T DO THIS FOR THE NEW MAGELLAN VMS!
-sudo bash << EOSHELL_2
-rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
-rm /etc/rc.local
+### THIS BIT WAS FOR MOVING /tmp on essex generation Magellan
+# rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
+# /home/ubuntu/Kevin_Installers/change_tmp.sh
+# EOF_2
 
-cat >/etc/rc.local<<EOF_2
-#!/bin/sh -e
-. /home/ubuntu/.profile
-/home/ubuntu/Kevin_Installers/change_tmp.sh
-EOF_2
-
-chmod +x /etc/rc.local
-EOSHELL_2
-echo "DONE moving /tmp"
+# EOSHELL_2
+# echo "DONE moving /tmp"
 ####################################################################################
 
 ####################################################################################
@@ -103,8 +108,9 @@ apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit; mv /etc/apt/sources.list.edit /etc/apt/sources.list
 ### update and upgrade
 apt-get -y install build-essential
-apt-get -y update
-apt-get -y upgrade
+apt-get update -y
+DEBIAN_FRONTEND=noninteractive # fix to have brub auto configure with default, try next time
+apt-get upgrade -y
 apt-get clean 
 ### install required packages
 apt-get -y --force-yes upgrade python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev mongodb-server bzr make gcc mercurial python-qcli
@@ -112,6 +118,7 @@ apt-get clean
 EOSHELL_3
 echo "DONE Installing dependencies for qiime_deploy and R"
 # sudo dpkg --configure -a # if you run tin trouble
+# sudo emacs /etc/apt/sources.list
 ####################################################################################
 
 ####################################################################################
@@ -156,7 +163,7 @@ echo "Installing Qiime"
 #sudo bash << EOFSHELL4
 cd /home/ubuntu/
 sudo python ./qiime-deploy/qiime-deploy.py /home/ubuntu/qiime_software -f ./AMETHST/qiime_configuration/qiime.amethst.config --force-remove-failed-dirs --force-remove-previous-repos
-apt-get -y clean
+sudo apt-get -y clean
 #EOFSHELL4
 echo "DONE Installing Qiime"
 ####################################################################################

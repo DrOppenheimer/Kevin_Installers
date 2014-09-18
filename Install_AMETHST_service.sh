@@ -25,15 +25,21 @@ set -x # print each command before execution
 ####################################################################################
 ### prepare tmp directory (only backend needs that!)
 ####################################################################################
-sudo bash << EOFSHELL_1
-#sudo bash
-sudo rm -r /tmp 
-sudo mkdir -p /mnt/tmp/ 
-sudo chmod 777 /mnt/tmp/
-#sudo ln -s /mnt/tmp/ /tmp
-sudo ln -s /mnt/tmp/ /tmp
-#exit
-EOFSHELL_1
+# sudo bash << EOFSHELL_1
+# #sudo bash
+# sudo rm -r /tmp 
+# sudo mkdir -p /mnt/tmp/ 
+# sudo chmod 777 /mnt/tmp/
+# #sudo ln -s /mnt/tmp/ /tmp
+# sudo ln -s /mnt/tmp/ /tmp
+# #exit
+# EOFSHELL_1
+####################################################################################
+
+####################################################################################
+### set your KB_AUTH_TOKEN (by hand - is added to ~/.profile below )
+####################################################################################
+KB_AUTH_TOKEN=""
 ####################################################################################
 
 ####################################################################################
@@ -57,82 +63,115 @@ EOFSHELL_2
 ####################################################################################################
 
 ####################################################################################################
-### KBase bootstratp
+### KBase bootstratp ( from https://docs.google.com/document/d/1MvZQprSwh8S9SthIws_YH85mpKX6TGD-ukajxVtpZpM/edit )
 ####################################################################################################
 sudo bash << EOFSHELL_3
 ## install emacs and git
 #apt-get install -y emacs git
 
 # clone the bootstrap repo
-cd /home/ubuntu
-git clone kbase@git.kbase.us:bootstrap
-
-## create directory for runtime
-#mkdir -p /kb/runtime
-
-# add it as env variable
-export target="/kb/runtime"
+#cd /home/ubuntu
+#cd /root
+#git clone kbase@git.kbase.us:bootstrap
 
 # create and populate dev_container
-cd /home/ubuntu
+cd /kb
 git clone kbase@git.kbase.us:dev_container.git
-cd /home/ubuntu/dev_container/modules
+cd /kb/dev_container/modules
 # clone modules into the dev_container
 git clone https://github.com/kbase/amethst_service.git # ( not kbase@git.kbase.us:awe_service.git ! )
 git clone https://github.com/kbase/typecomp.git
 git clone https://github.com/kbase/matR.git
 git clone https://github.com/kbase/shock_service.git
-git clone https://github.com/kbase/awe_service.git
+git clone https://github.com/kbase/awe_service.git # --recursive
 git clone https://github.com/kbase/kbapi_common.git
 git clone kbase@git.kbase.us:auth.git # needs the key from above
 git clone kbase@git.kbase.us:jars.git # needs the key from above
 
 # deploy all installed KBase services 
-cd /home/ubuntu/dev_container
-# source /kb/runtime/env/java-build-runtime.env 
-./bootstrap /kb/runtime
-. user-env.sh
+cd /kb/dev_container
+/kb/dev_container/bootstrap /kb/runtime
+source /kb/dev_container/user-env.sh
 make 
 make deploy
 
-# source environment
-source /kb/deployment/user-env.sh
+# add amethst to path
+echo "export PATH=\"/kb/dev_container/modules/amethst_service/AMETHST/:/kb/deployment/bin:$PATH\"" >> /kb/deployment/user-env.sh
+
+# add KBase env and amethst service start to .profile - load a KB_AUTH_TOKEN
+echo "export KB_AUTH_TOKEN=\"${KB_AUTH_TOKEN}\"" >> ~/.profile ## DON'T FORGET TO ADD KB_AUTH_TOKEN to ~/.profile
+echo "source /kb/deployment/user-env.sh" >> ~/.profile
+
+# add starting the service to the /etc/rc.local file to start the service at boot
+rm /etc/rc.local
+cat >/etc/rc.local<<EOF_2
+#!/bin/sh -e
+sudo screen -S awe_service -d -m bash -c "source /kb/deployment/user-env.sh; source /home/ubuntu/.profile; sudo /kb/deployment/services/amethst_service/start_service"
+EOF_2
+chmod +x /etc/rc.local
+
+# Patch from Wolfgang -- will not be necessary in the future
+cd /kb/deployment/lib/AWE
+rm Client.pm
+wget https://raw.githubusercontent.com/wgerlach/AWE/master/utils/lib/AWE/Client.pm
+
 EOFSHELL_3
 ####################################################################################################
+####################################################################################################
+sudo reboot
+
+# END - Notes from here on
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+
+
+
+
+# source environment
+source /kb/deployment/user-env.sh
+
+####################################################################################################
+# configuration for the service is in /kb/dev_container/modules/amethst_service/deploy.cfg
+# and                                 /kb/deployment/deployment.cfg
+
+## DON'T FORGET TO ADD KB_AUTH_TOKEN to ~/.profile
 
 ####################################################################################################
 ### Deploy and start AMETHST service (is not currently part of the bottstrap)
 ####################################################################################################
 sudo bash << EOFSHELL_4
-cd /kb/dev_container/
-./bootstrap /kb/runtime
+/kb/dev_container/bootstrap /kb/runtime
 source /kb/dev_container/user-env.sh
 source /kb/deployment/user-env.sh
-cd /kb/deployment/services/amethst_service/
-./start_service &
+/kb/deployment/services/amethst_service/start_service &
 # add AMETHST directory to path
-echo "export PATH=/home/ubuntu/dev_container/modules/amethst_service/AMETHST/:$PATH;" >> /kb/deployment/user-env.sh
+echo "export PATH=/kb/dev_container/modules/amethst_service/AMETHST/:$PATH;" >> /kb/deployment/user-env.sh
 source /kb/deployment/user-env.sh
-echo "source /kb/deployment/user-env.sh" >> ~/.bashrc
+
+echo "sudo /kb/deployment/services/amethst_service/start_service &" >> ~/.profile
+echo "source /kb/deployment/user-env.sh" >> ~/.profile
 EOFSHELL_4
 ####################################################################################################
 
 ####################################################################################################
 ### Force AMETHST service to start on boot
 ####################################################################################################
-sudo bash << EOFSHELL_5
-cd /home/ubuntu
+# sudo bash << EOFSHELL_5
+# rm /etc/rc.local
 
-cat >/etc/rc.local<EOF_2
-#!/bin/sh -e 
-. /kb/deployment/user-env.sh
-/kb/deployment/services/amethst_service/start_service &
-<EOF_2
-chmod +x /etc/rc.local
+# cat >/etc/rc.local<<EOF_2
+# #!/bin/sh -e 
+# . /home/ubuntu/.profile
+# EOF_2
+# chmod +x /etc/rc.local
 
-EOFSHELL_5
+# EOFSHELL_5
 
-sudo reboot
+# sudo reboot
 ####################################################################################################
 
 

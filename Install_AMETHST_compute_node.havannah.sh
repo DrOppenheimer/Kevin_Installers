@@ -27,30 +27,43 @@ set -x # print each command before execution
 # vmAWE.pl --create=5 --flavor_name=idp.100 --groupname=am_compute --key_name=kevin_share --image_name="am_comp.8-18-14" --nogroupcheck --greedy
 # vmAWE.pl --create=5 # if other options are specified in .bulkvm
 
-# Name: am_comp.8-14-14
-# ID: d0950e07-3a76-47cf-a10a-8e72569fa28a 
-# also have image for service machine
-# Name: am_service.8-14-14
-# ID: e817940e-127d-4247-b66a-51bfd1e5d9b0
+
+# MG-RAST-Dev:
+# compute nodes
+#      Name: mg_amethst_comp.9-10-14
+#      ID: c470c6df-54d9-4738-9c73-36d91a30300e
+#      # vmAWE.pl --create=5 --flavor_name=i2.2xlarge.sd --groupname=amethst --key_name=kevin_share --image_name="mg_amethst_comp.9-10-14" --nogroupcheck --greedy 
+# service node
+#      Name: 
+#      ID: 
+#      # vmAWE.pl --create=5 --flavor_name=i2.medium.sd --groupname=amethst --key_name=kevin_share --image_name="mg_amethst_comp.9-10-14" --nogroupcheck --greedy
+
+# KBASE_Dev
+# compute nodes
+#      Name: kb_amethst_comp.9-10-14
+#      ID: d9be941e-2fbf-4286-b23f-805c74c09784
+# service node
+#      Name: kb_amethst_service.9-10-14
+#      ID: d27cdc97-8782-4a4b-aac0-1e570263072d
+
+
+
+
 ####################################################################################
 
 ####################################################################################
 ### Create environment variables for key options
 ####################################################################################
-
-
-
-
-
 echo "Creating environment variables"
 sudo bash << EOSHELL_1
 
 cat >>/home/ubuntu/.profile<<EOF_1
-
-#export AWE_SERVER="http://kbase.us/services/awe/"
-export AWE_SERVER="http://140.221.84.148:8000"
+#export AWE_SERVER="http://kbase.us/services/awe/" # KBase production
+#export AWE_SERVER="http://140.221.67.190:7080" # KBase dev # external ip
+#export AWE_SERVER="http://10.1.16.5:7080" # KBase dev # internal ip
+export AWE_SERVER="http://140.221.67.236:8000" # MG-RAST
 export AWE_CLIENT_GROUP="amethst"
-export HOSTNAME=${HOSTNAME}
+export HOSTNAME=`hostname` #${HOSTNAME}
 export GOPATH=/home/ubuntu/gopath
 export AWE_DATA="/data/awe/data"
 export AWE_WORK="/data/awe/work"
@@ -63,6 +76,13 @@ echo "DONE creating environment variables"
 ####################################################################################
 
 ####################################################################################
+### set your KB_AUTH_TOKEN and GROUP TOKEN (by hand - is added to ~/.profile below ) ## DON'T FORGET TO ADD KB_AUTH_TOKEN
+####################################################################################
+KB_AUTH_TOKEN=""
+AWE_CLIENT_GROUP_TOKEN=""
+####################################################################################
+
+####################################################################################
 ### move /tmp to /mnt/tmp (compute frequntly needs the space, exact amount depends on data)
 ####################################################################################
 ### First - create script that will check for proper /tmp confuguration and adjust at boot
@@ -70,19 +90,19 @@ echo "DONE creating environment variables"
 ### location when this is saved as an image
 ### replace tmp on current instance - add acript to /etc/rc.local that will cause it to be replaced in VMs generated from snapshot
 ### DON'T DO THIS FOR THE NEW MAGELLAN VMS!
-sudo bash << EOSHELL_2
-# rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
-rm /etc/rc.local
+#sudo bash << EOSHELL_2
+## rm -r /tmp; mkdir -p /mnt/tmp/; chmod 777 /mnt/tmp/; sudo ln -s /mnt/tmp/ /tmp
+#rm /etc/rc.local
 
-cat >/etc/rc.local<<EOF_2
-#!/bin/sh -e
-. /home/ubuntu/.profile
-# /home/ubuntu/Kevin_Installers/change_tmp.sh
-EOF_2
+#cat >/etc/rc.local<<EOF_2
+##!/bin/sh -e
+#. /home/ubuntu/.profile
+## /home/ubuntu/Kevin_Installers/change_tmp.sh
+#EOF_2
 
-chmod +x /etc/rc.local
-EOSHELL_2
-echo "DONE moving /tmp"
+#chmod +x /etc/rc.local
+#EOSHELL_2
+#echo "DONE moving /tmp"
 ####################################################################################
 
 ####################################################################################
@@ -99,9 +119,9 @@ apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 ### for qiime install later, uncomment the universe and multiverse repositories from /etc/apt/sources.list
 sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit; mv /etc/apt/sources.list.edit /etc/apt/sources.list
 ### update and upgrade
-apt-get -y install build-essential
-apt-get -y update
-apt-get -y upgrade
+how apt-get -y install build-essential
+apt-get -y update   
+apt-get -y upgrade  # try without updade # try with -f
 apt-get clean 
 ### install required packages
 apt-get -y --force-yes upgrade python-dev libncurses5-dev libssl-dev libzmq-dev libgsl0-dev openjdk-6-jdk libxml2 libxslt1.1 libxslt1-dev ant git subversion zlib1g-dev libpng12-dev libfreetype6-dev mpich2 libreadline-dev gfortran unzip libmysqlclient18 libmysqlclient-dev ghc sqlite3 libsqlite3-dev libc6-i386 libbz2-dev libx11-dev libcairo2-dev libcurl4-openssl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev xorg openbox emacs r-cran-rgl xorg-dev libxml2-dev mongodb-server bzr make gcc mercurial python-qcli
@@ -237,6 +257,10 @@ echo "DONE testing AMETHST functionality"
 ### INSTALL, CONFIGURE, and START AWE client (Uses Wei's script - commented copies of script and configureation are in appendix below
 ####################################################################################
 ### INSTALL
+#### DON'T FORGET TO SET A VALUE FOR AWE_CLIENT_GROUP_TOKEN !!!
+#### DON'T FORGET TO SET A VALUE FOR AWE_CLIENT_GROUP_TOKEN !!!
+#### DON'T FORGET TO SET A VALUE FOR AWE_CLIENT_GROUP_TOKEN !!!
+
 echo "Installing, configuring, and starting the AWE client"
 sudo bash << EOSHELL_9
 cd /home/ubuntu
@@ -259,7 +283,6 @@ debuglevel=0
 
 [Client]
 workpath=${AWE_WORK}
-
 supported_apps=*
 app_path=/home/ubuntu/apps/bin
 serverurl=${AWE_SERVER}
@@ -283,30 +306,43 @@ ln -s ${AWE_DATA}
 ln -s ${AWE_WORK}
 ln -s ${AWE_LOGS}
 
+# write the auth token to the profile
+echo "export KB_AUTH_TOKEN=\"${KB_AUTH_TOKEN}\"" >> ~/.profile ## DON'T FORGET TO ADD KB_AUTH_TOKEN to ~/.profile
+
 EOSHELL_9
 echo "DONE installing AWE"
+####################################################################################
+
 
 ####################################################################################
-### make sure AWE client is activated, in a screen, at boot - gets additional configuration info if needed from file already in the AMETHST git repo
+### Prep /etc/rc.local
 ####################################################################################
-sudo bash << EOSHELL_10
+sudo bash << EOSHELL_2
 
-cat >>/etc/rc.local<<EOF_5
+rm /etc/rc.local
+
+cat >/etc/rc.local<<EOF_2
+#!/bin/sh -e
 . /home/ubuntu/.profile
-#echo $PATH > /home/ubuntu/my_path
-/home/ubuntu/Kevin_Installers/change_tmp.sh
-sudo screen -S awe_client -d -m bash -c "source /home/ubuntu/.profile; echo \$PATH > /home/ubuntu/awe_client_screen.path_log.txt; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
+# /home/ubuntu/Kevin_Installers/change_tmp.sh
 sudo mkdir -p ${AWE_DATA}
 sudo mkdir -p ${AWE_WORK}
 sudo mkdir -p ${AWE_LOGS}
-EOF_5
+sudo screen -S awe_client -d -m bash -c "source /home/ubuntu/.profile; echo \$PATH > /home/ubuntu/awe_screen_pathlog.txt; /home/ubuntu/gopath/bin/awe-client -conf /home/ubuntu/awe_client_config"
 
+EOF_2
+chmod +x /etc/rc.local
+EOSHELL_2
+####################################################################################
 
-EOSHELL_10
 ####################################################################################
 sudo reboot
 ####################################################################################
 
+
+####################################################################################
+####################################################################################
+####################################################################################
 # DONE JUST NOTES FROM HERE ON
 # DONE JUST NOTES FROM HERE ON
 # DONE JUST NOTES FROM HERE ON
