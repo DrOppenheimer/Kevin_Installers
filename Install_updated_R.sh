@@ -5,7 +5,7 @@
 ### Install as root
 sudo bash
 ### Install Curl
-apt-get update
+apt-get -y update
 apt-get -y install libcurl4-openssl-dev libxml2-dev
 ### add cran public key # this makes it possible to install most current R below
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
@@ -13,6 +13,7 @@ apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 echo deb http://cran.rstudio.com/bin/linux/ubuntu trusty/ >> /etc/apt/sources.list
 sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit; mv /etc/apt/sources.list.edit /etc/apt/sources.list
 ### upgrade
+apt-get -y update
 apt-get -y upgrade 
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
