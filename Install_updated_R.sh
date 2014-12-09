@@ -12,8 +12,7 @@ apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 ### for qiime install later, uncomment the universe and multiverse repositories from /etc/apt/sources.list
 echo deb http://cran.rstudio.com/bin/linux/ubuntu trusty/ >> /etc/apt/sources.list
 sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit; mv /etc/apt/sources.list.edit /etc/apt/sources.list
-### update and upgrade
-apt-get -y update
+### upgrade
 apt-get -y upgrade 
 apt-get -y build-dep r-base # install R dependencies (mostly for image production support)
 apt-get -y install r-base   # install R
