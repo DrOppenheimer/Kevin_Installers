@@ -5,6 +5,7 @@
 ### Install as root
 sudo bash
 ### Install Curl
+apt-get update
 apt-get -y install libcurl4-openssl-dev libxml2-dev
 ### add cran public key # this makes it possible to install most current R below
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
