@@ -2,11 +2,15 @@
 ####################################################################################
 ### INSTALL UPDATED R ONLY - this version for 14.04 (trusty)
 ####################################################################################
+# return non zero when it should
+# echo "options(warn=2); install.packages('RColorBrewer', repos='http://cran.r-project.org')" | R --slave --vanilla
+# https://github.com/qiime/qiime-deploy/issues/15
+
 ### Install as root
 sudo bash
 ### Install Curl
 apt-get -y update
-apt-get -y install libcurl4-openssl-dev libxml2-dev
+apt-get -y install xserver-xorg-dev libcurl4-openssl-dev libxml2-dev libX11-dev freeglut3 freeglut3-dev
 ### add cran public key # this makes it possible to install most current R below
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 ### for qiime install later, uncomment the universe and multiverse repositories from /etc/apt/sources.list
