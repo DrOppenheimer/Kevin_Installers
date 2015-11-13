@@ -23,8 +23,8 @@ apt-get -y build-dep r-base # install R dependencies (mostly for image productio
 apt-get -y install r-base   # install R
 ### Install addition packages
 cat >install_packages.r<<EOF
-# Install these packages 
-install.packages(c("KernSmooth", "codetools", "httr", "scatterplot3d"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
+# Optional - Install these packages - first from cran, then from BioConductor
+install.packages(c("KernSmooth", "codetools", "httr", "scatterplot3d", "devtools", "RJSONIO","RCurl", "matlab", "ggplot2"), dependencies = TRUE, repos="http://cran.rstudio.com/", lib="/usr/lib/R/library")
 source("http://bioconductor.org/biocLite.R")
 biocLite (pkgs=c("DESeq","preprocessCore"))
 q()
