@@ -8,7 +8,7 @@ use warnings;
 use Getopt::Long;
 
 my $input_file    = "input.file"; # expected is md5."\t".count."\t".seq_id(i)."\s"... for seq_id i to n, the number of reads in the bin
-my $output_file   = "output.file";
+my $output_file   = "default";    # default will replace input_file with a file of the same name 
 my $verbose       = 0;
 my $help          = "0";
 my $arguments     =     $ARGV[0];
@@ -49,6 +49,13 @@ while (my $line = <INPUT_FILE>){
 
 close(INPUT_FILE);
 close(OUTPUT_FILE);
+
+# if the output is "default", replaces the old file with a new one with the same name
+if( $output_file eq "default"  ){
+  unlink($input_file); # delete input
+  my $move_string="mv ".$output_file." ".$input_file; # rename the output with the input filename
+  system($move_string);
+}
 
 # there are three types of line returns
 # LF  "\n"   - Unix
