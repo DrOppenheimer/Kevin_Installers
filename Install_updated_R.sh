@@ -7,7 +7,7 @@
 # https://github.com/qiime/qiime-deploy/issues/15
 
 ### Install as root
-sudo bash
+sudo bash << EOFSHELL
 ### Install Curl
 apt-get -y update
 apt-get -y install xserver-xorg-dev libcurl4-openssl-dev libxml2-dev libX11-dev freeglut3 freeglut3-dev
@@ -33,4 +33,4 @@ R --vanilla --slave < install_packages.r
 rm install_packages.r
 echo "DONE INSTALLING R"
 ####################################################################################
-  
+EOFSHELL
