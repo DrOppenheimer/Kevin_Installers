@@ -20,7 +20,7 @@ sudo bash << EOFSHELL
 echo 'deb http://cran.cnr.Berkeley.edu/bin/linux/ubuntu precise/' >> /etc/apt/sources.list 
 EOFSHELL
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-sudo add-apt-repository ppa:marutter/rdev
+sudo add-apt-repository -y --force-yes ppa:marutter/rdev
 ### for qiime install later, uncomment the universe and multiverse repositories from /etc/apt/sources.list
 #sudo echo deb http://cran.rstudio.com/bin/linux/ubuntu trusty/ >> /etc/apt/sources.list
 #sudo sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit; mv /etc/apt/sources.list.edit /etc/apt/sources.list
