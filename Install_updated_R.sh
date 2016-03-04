@@ -26,9 +26,9 @@ sudo add-apt-repository ppa:marutter/rdev
 #sudo sed -e '/verse$/s/^#\{1,\}//' /etc/apt/sources.list > /etc/apt/sources.list.edit; mv /etc/apt/sources.list.edit /etc/apt/sources.list
 #EOFSHELL
 ### upgrade
-sudo apt-get update -y
-sudo apt-get upgrade -y 
-sudo apt-get build-dep -y r-base   # install R dependencies (mostly for image production support)
+sudo apt-get update -y --force-yes
+sudo apt-get upgrade -y --force-yes
+sudo apt-get build-dep -y --force-yes r-base   # install R dependencies (mostly for image production support)
 sudo apt-get install -y --force-yes r-base r-base-dev  # install R
 ### Install addition packages
 cat >install_packages.r<<EOF
